@@ -5,7 +5,7 @@
 ## 安装
 
 ```bash
-claude skill add https://github.com/killvxk/TeamSkills
+npx skills add https://github.com/killvxk/TeamSkills
 ```
 
 安装后会在 `~/.claude/skills/` 下创建 `team-init`、`team-save`、`team-load`、`team-list`、`team-delete` 五个目录。
