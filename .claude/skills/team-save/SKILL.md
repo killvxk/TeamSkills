@@ -1,12 +1,12 @@
 ---
 name: team-save
 description: |
-  保存当前运行中的团队配置到项目目录。当用户说"保存团队"、"team save"、
-  "保存团队配置"、"导出团队"时触发。
-  从 ~/.claude/teams/{name}/config.json 读取当前团队状态，
-  保存为可复用的快照文件到 .team-profiles/ 目录。
+  This skill should be used when the user asks to "保存团队", "team save",
+  "保存团队配置", "导出团队". 从运行中的团队读取配置并保存为快照文件
+  到 .team-profiles/ 目录，供 /team-load 复用。
 argument-hint: "[团队名称] [保存名称]"
 disable-model-invocation: true
+version: 0.1.0
 ---
 
 # 团队配置保存

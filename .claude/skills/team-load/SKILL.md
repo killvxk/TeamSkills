@@ -1,12 +1,12 @@
 ---
 name: team-load
 description: |
-  从项目目录加载已保存的团队配置并创建团队。当用户说"加载团队"、"team load"、
-  "恢复团队"、"载入团队配置"时触发。
-  读取 .team-profiles/ 下的 YAML 配置文件，跳过交互问答，直接创建团队。
-  支持两种格式：template（由 /team-init 生成）和 snapshot（由 /team-save 生成）。
+  This skill should be used when the user asks to "加载团队", "team load",
+  "恢复团队", "载入团队配置". 从 .team-profiles/ 读取 YAML 配置，
+  跳过交互问答直接创建团队。支持 template 和 snapshot 两种格式。
 argument-hint: "[配置名称]"
 disable-model-invocation: true
+version: 0.1.0
 ---
 
 # 团队配置加载
@@ -143,6 +143,8 @@ TeamCreate:
 角色定义路径: `~/.claude/skills/team-init/references/{team_type}/roles/{role_code}.md`
 工作流路径: `~/.claude/skills/team-init/references/{team_type}/workflow.md`
 
+> **注意**: 以上路径以 skill 实际安装目录为准。
+
 ### T-4: 构建角色 Prompt
 
 ```
@@ -180,7 +182,7 @@ TeamCreate:
 先创建 Lead，再并行创建其他角色。
 
 ```
-Task:
+Agent:
   name: "{member_name}"
   subagent_type: "general-purpose"
   team_name: "{project_name}"
@@ -287,7 +289,7 @@ TeamCreate:
 对每个成员：
 
 ```
-Task:
+Agent:
   name: "{member.name}"
   subagent_type: "general-purpose"
   team_name: "{project_name}"

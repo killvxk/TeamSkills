@@ -1,13 +1,13 @@
 ---
 name: team-init
 description: |
-  通过交互式问答创建工程团队。当用户说"初始化团队"、"创建开发团队"、
-  "team init"、"组建团队"、"启动项目团队"时触发。
-  支持 7 种团队类型：软件开发、软件测试、逆向工程、调试/Bug修复、
-  安全研究、CTF比赛、软件与服务器运维。
-  收集项目信息后创建包含专业角色的 Agent Team。
+  This skill should be used when the user asks to "初始化团队", "创建开发团队",
+  "team init", "组建团队", "启动项目团队". 通过交互式问答收集项目信息，
+  创建包含专业角色的 Agent 工程团队。支持 7 种团队类型：软件开发、软件测试、
+  逆向工程、调试/Bug修复、安全研究、CTF比赛、软件与服务器运维。
 argument-hint: "[项目名称]"
 disable-model-invocation: true
+version: 0.1.0
 ---
 
 # 工程团队初始化
@@ -26,81 +26,7 @@ disable-model-invocation: true
 | 6 | CTF 比赛 | 队长 | ctf | CTF 竞赛、安全挑战 |
 | 7 | 运维 | 运维经理 | ops | 部署运维、基础设施管理 |
 
-## 各类型角色一览
-
-### 1. 软件开发 (dev)
-| 角色 | 代号 | 可多实例 |
-|------|------|----------|
-| 项目经理 | pm | 否 |
-| 架构师 | architect | 否 |
-| 需求分析师 | analyst | 否 |
-| 开发工程师 | developer | 是 |
-| 测试工程师 | tester | 是 |
-| 运维工程师 | ops | 是 |
-| 代码审计 | auditor | 是 |
-| 验收人员 | acceptor | 否 |
-
-### 2. 软件测试 (testing)
-| 角色 | 代号 | 可多实例 |
-|------|------|----------|
-| 测试经理 | test-manager | 否 |
-| 测试架构师 | test-architect | 否 |
-| 功能测试工程师 | functional-tester | 是 |
-| 性能测试工程师 | perf-tester | 是 |
-| 安全测试工程师 | security-tester | 是 |
-| 自动化测试工程师 | automation-tester | 是 |
-
-### 3. 逆向工程 (reverse)
-| 角色 | 代号 | 可多实例 |
-|------|------|----------|
-| 逆向负责人 | re-lead | 否 |
-| 静态分析师 | static-analyst | 是 |
-| 动态分析师 | dynamic-analyst | 是 |
-| 协议分析师 | protocol-analyst | 是 |
-| 漏洞研究员 | vuln-researcher | 是 |
-| 文档记录员 | documenter | 否 |
-
-### 4. 调试/Bug修复 (debug)
-| 角色 | 代号 | 可多实例 |
-|------|------|----------|
-| 调试负责人 | debug-lead | 否 |
-| 问题分析师 | issue-analyst | 是 |
-| 根因分析师 | root-cause-analyst | 是 |
-| 修复工程师 | fix-engineer | 是 |
-| 回归测试工程师 | regression-tester | 是 |
-| 代码审查员 | code-reviewer | 否 |
-
-### 5. 安全研究 (security)
-| 角色 | 代号 | 可多实例 |
-|------|------|----------|
-| 安全负责人 | security-lead | 否 |
-| 漏洞挖掘工程师 | vuln-hunter | 是 |
-| 漏洞利用开发 | exploit-dev | 是 |
-| 安全审计师 | security-auditor | 是 |
-| 防御研究员 | defense-researcher | 否 |
-| 报告编写 | report-writer | 否 |
-
-### 6. CTF 比赛 (ctf)
-| 角色 | 代号 | 可多实例 |
-|------|------|----------|
-| 队长 | captain | 否 |
-| Web安全选手 | web | 是 |
-| 逆向工程选手 | reverse | 是 |
-| 密码学选手 | crypto | 是 |
-| PWN选手 | pwn | 是 |
-| Misc选手 | misc | 是 |
-| 取证选手 | forensics | 是 |
-
-### 7. 运维 (ops)
-| 角色 | 代号 | 可多实例 |
-|------|------|----------|
-| 运维经理 | ops-manager | 否 |
-| 系统工程师 | sys-engineer | 是 |
-| 网络工程师 | net-engineer | 是 |
-| DBA | dba | 是 |
-| 监控工程师 | monitor-engineer | 是 |
-| 安全运维 | security-ops | 是 |
-| 自动化工程师 | automation-engineer | 是 |
+各类型的详细角色列表见 `references/role-catalog.md`。
 
 ## 交互式问答流程
 
@@ -114,28 +40,19 @@ AskUserQuestion:
   header: "团队类型"
   options:
     - label: "软件开发"
-      description: "全新项目开发、功能迭代，包含 PM、架构师、开发、测试等角色"
+      description: "全新项目开发、功能迭代"
     - label: "软件测试"
-      description: "系统测试、质量保障，包含测试经理、功能/性能/安全/自动化测试角色"
+      description: "系统测试、质量保障"
     - label: "逆向工程"
-      description: "二进制分析、协议逆向，包含静态/动态分析师、协议分析师等角色"
+      description: "二进制分析、协议逆向"
     - label: "调试/Bug修复"
-      description: "故障排查、性能定位，包含问题/根因分析师、修复工程师等角色"
-  multiSelect: false
-```
-
-如果用户选择"其他"，再展示剩余选项：
-```
-AskUserQuestion:
-  question: "请选择团队类型（续）"
-  header: "更多类型"
-  options:
+      description: "故障排查、性能定位"
     - label: "安全研究"
-      description: "漏洞挖掘、安全评估，包含漏洞挖掘/利用/审计/防御研究角色(需合法授权)"
+      description: "漏洞挖掘、安全评估(需合法授权)"
     - label: "CTF 比赛"
-      description: "CTF 竞赛，包含 Web/逆向/密码学/PWN/Misc/取证选手"
+      description: "CTF 竞赛、安全挑战"
     - label: "运维"
-      description: "部署运维、基础设施管理，包含系统/网络/DBA/监控/安全运维角色"
+      description: "部署运维、基础设施管理"
   multiSelect: false
 ```
 
@@ -308,6 +225,8 @@ TeamCreate:
 角色定义路径: `~/.claude/skills/team-init/references/{type_dir}/roles/{role_code}.md`
 工作流路径: `~/.claude/skills/team-init/references/{type_dir}/workflow.md`
 
+> **注意**: 以上路径以 skill 实际安装目录为准。使用 Read 工具时需要确认 skill 所在的实际路径。
+
 对每个选中的角色，使用 Read 工具读取其角色定义文件。
 同时读取该类型的 workflow.md。
 
@@ -350,7 +269,7 @@ TeamCreate:
 **Lead 角色必须第一个创建。**
 
 ```
-Task:
+Agent:
   name: "{member_name}"
   subagent_type: "general-purpose"
   team_name: "{project_name}"
@@ -420,24 +339,8 @@ SendMessage:
   summary: "团队已创建，启动项目"
 ```
 
-## Lead 动态管理能力
+## 参考资源
 
-所有团队类型的 Lead 角色共享以下管理能力（已写入各 Lead 角色定义文件）：
-
-### 招募新成员
-1. 读取角色定义: `Read ~/.claude/skills/team-init/references/{type_dir}/roles/{role}.md`
-2. 组合项目信息构建 prompt（参考步骤 3 格式）
-3. 使用 Task 工具派生新 agent，指定 team_name
-4. 使用 TaskCreate/TaskUpdate 为新成员分配任务
-5. 向新成员和相关成员发送通知
-
-### 解散成员
-1. 确认该成员所有任务已完成或已转移
-2. `SendMessage type: "shutdown_request"` 请求成员关闭
-3. 等待成员确认
-4. 必要时重新分配未完成任务
-
-### 团队状态跟踪
-- `TaskList` 查看任务进度
-- `Read ~/.claude/teams/{team_name}/config.json` 查看成员列表
-- `SendMessage` 与成员沟通
+- **`references/role-catalog.md`** - 各团队类型的完整角色列表
+- **`references/{type_dir}/roles/{role}.md`** - 各角色详细定义
+- **`references/{type_dir}/workflow.md`** - 各团队类型的工作流定义

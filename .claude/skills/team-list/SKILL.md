@@ -1,11 +1,12 @@
 ---
 name: team-list
 description: |
-  列出当前项目目录下已保存的团队配置。当用户说"列出团队"、"team list"、
-  "查看团队配置"、"有哪些团队"时触发。
-  扫描 .team-profiles/ 目录，展示所有可用配置的摘要信息。
+  This skill should be used when the user asks to "列出团队", "team list",
+  "查看团队配置", "有哪些团队". 扫描 .team-profiles/ 目录，
+  展示所有可用配置的摘要信息。
 argument-hint: ""
 disable-model-invocation: true
+version: 0.1.0
 ---
 
 # 团队配置列表

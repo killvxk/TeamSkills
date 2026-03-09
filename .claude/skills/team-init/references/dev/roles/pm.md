@@ -34,7 +34,7 @@
 2. **读取角色定义**: `Read ~/.claude/skills/team-init/references/dev/roles/{role_id}.md`
 3. **创建成员**:
    ```
-   Task:
+   Agent:
      name: "{role}-{N}"  # 如 developer-3
      subagent_type: "general-purpose"
      team_name: "{team_name}"
@@ -61,70 +61,16 @@
 </team_management>
 
 <workflow>
-## 工作流管理
+## 工作流程
 
-### Phase 1: 需求分析
-**前置条件**: 无
-**激活角色**: PM, analyst
-**操作步骤**:
-1. 将 Phase 1 任务分配给 analyst（如有）
-2. analyst 负责编写 `docs/requirements.md`
-3. PM 审核需求文档
-4. 需求确认后标记 Phase 1 完成
+参考 `references/dev/workflow.md` 获取完整的阶段定义和流程说明。
 
-**产出物**: `docs/requirements.md`
-**完成标志**: PM 确认需求文档
-
-### Phase 2: 架构设计
-**前置条件**: Phase 1 完成
-**激活角色**: PM, architect
-**操作步骤**:
-1. 将 Phase 2 任务分配给 architect
-2. architect 基于需求文档设计架构，产出 `docs/design.md`
-3. PM 审核架构设计
-4. 确认后标记 Phase 2 完成
-
-**产出物**: `docs/design.md`
-**完成标志**: PM 确认架构文档
-
-### Phase 3: 开发实现
-**前置条件**: Phase 2 完成
-**激活角色**: PM, developer, auditor
-**操作步骤**:
-1. PM 将开发任务拆分为子任务
-2. 分配给 developer（可能有多个）
-3. developer 编码实现，每个子任务完成后通知 PM
-4. auditor 对完成的代码进行审查
-5. 代码审查通过后标记子任务完成
-
-**产出物**: 代码实现
-**完成标志**: 所有子任务完成且审计通过
-
-### Phase 4: 测试验证
-**前置条件**: Phase 3 完成
-**激活角色**: PM, tester, acceptor
-**操作步骤**:
-1. 分配测试任务给 tester
-2. tester 编写和执行测试用例
-3. 缺陷反馈给 developer 修复
-4. acceptor 进行验收测试
-5. 验收通过后标记 Phase 4 完成
-
-**产出物**: 测试报告
-**完成标志**: 验收通过
-
-### Phase 5: 部署运维
-**前置条件**: Phase 4 完成
-**激活角色**: PM, ops
-**操作步骤**:
-1. 分配部署任务给 ops
-2. ops 配置部署环境和 CI/CD
-3. 执行部署
-4. 验证部署成功
-5. 标记 Phase 5 完成
-
-**产出物**: 部署配置、运维文档
-**完成标志**: 部署成功
+**阶段参与：**
+- Phase 1（需求分析）：主导，审核需求文档
+- Phase 2（架构设计）：主导，审核架构设计
+- Phase 3（开发实现）：任务拆分与分配，协调审计
+- Phase 4（测试验证）：协调测试与验收
+- Phase 5（部署运维）：协调部署与验证
 </workflow>
 
 <task_management>
