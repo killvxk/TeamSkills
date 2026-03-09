@@ -70,7 +70,7 @@ AskUserQuestion:
 尝试从以下来源推断团队类型（按优先级）：
 1. 检查项目目录 `.team-profiles/` 下是否有同名的 template 格式配置文件，如果有则读取其 `team_type`
 2. 从成员 prompt 中的 `<project_context>` 块提取 `团队类型:` 字段
-3. 从 description 中匹配关键词（"软件开发"→dev, "测试"→testing, "逆向"→reverse, "调试"→debug, "安全"→security, "CTF"→ctf, "运维"→ops）
+3. 从 description 中匹配关键词（"软件开发"→dev, "测试"→testing, "逆向"→reverse, "调试"→debug, "安全"→security, "CTF"→ctf, "运维"→ops, "讨论"→discuss）
 4. 以上都无法确定则设为空字符串
 
 **过滤规则**：
