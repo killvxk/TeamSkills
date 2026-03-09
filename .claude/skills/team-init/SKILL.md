@@ -3,8 +3,8 @@ name: team-init
 description: |
   This skill should be used when the user asks to "初始化团队", "创建开发团队",
   "team init", "组建团队", "启动项目团队". 通过交互式问答收集项目信息，
-  创建包含专业角色的 Agent 工程团队。支持 7 种团队类型：软件开发、软件测试、
-  逆向工程、调试/Bug修复、安全研究、CTF比赛、软件与服务器运维。
+  创建包含专业角色的 Agent 工程团队。支持 8 种团队类型：软件开发、软件测试、
+  逆向工程、调试/Bug修复、安全研究、CTF比赛、软件与服务器运维、讨论/研讨。
 argument-hint: "[项目名称]"
 disable-model-invocation: true
 version: 0.1.0
@@ -25,6 +25,7 @@ version: 0.1.0
 | 5 | 安全研究 | 安全负责人 | security | 漏洞挖掘、安全评估(需合法授权) |
 | 6 | CTF 比赛 | 队长 | ctf | CTF 竞赛、安全挑战 |
 | 7 | 运维 | 运维经理 | ops | 部署运维、基础设施管理 |
+| 8 | 讨论/研讨 | 主持人 | discuss | 方案设计、技术选型、需求研讨、头脑风暴 |
 
 各类型的详细角色列表见 `references/role-catalog.md`。
 
@@ -53,6 +54,8 @@ AskUserQuestion:
       description: "CTF 竞赛、安全挑战"
     - label: "运维"
       description: "部署运维、基础设施管理"
+    - label: "讨论/研讨"
+      description: "方案设计、技术选型、需求研讨、头脑风暴"
   multiSelect: false
 ```
 
@@ -64,6 +67,7 @@ AskUserQuestion:
 - 安全研究 → security
 - CTF 比赛 → ctf
 - 运维 → ops
+- 讨论/研讨 → discuss
 
 ### 问题 1: 项目名称
 
@@ -99,6 +103,7 @@ AskUserQuestion:
 - security: "请描述安全研究的目标和范围"
 - ctf: "请描述比赛名称和赛制"
 - ops: "请描述运维目标和基础设施概况"
+- discuss: "请描述讨论议题和期望产出"
 
 ### 问题 3: 技术栈/目标平台
 
@@ -118,6 +123,7 @@ AskUserQuestion:
 - security: "研究目标的技术栈和平台？"
 - ctf: "比赛偏好方向和工具？"
 - ops: "基础设施技术栈？（Linux/K8s/AWS/Docker）"
+- discuss: "讨论涉及哪些领域？（用于配置专家角色的专业背景）"
 
 ### 问题 4: 角色选择
 
@@ -148,6 +154,7 @@ AskUserQuestion:
 - security: security-lead + vuln-hunter + security-auditor
 - ctf: captain + web + pwn + reverse
 - ops: ops-manager + sys-engineer + monitor-engineer
+- discuss: moderator + domain-expert + critic + synthesizer
 
 最小团队映射：
 - dev: pm + developer
@@ -157,6 +164,22 @@ AskUserQuestion:
 - security: security-lead + vuln-hunter
 - ctf: captain + web
 - ops: ops-manager + sys-engineer
+- discuss: moderator + domain-expert
+
+### 问题 4.5: 讨论轮次（仅 discuss 类型触发）
+
+```
+AskUserQuestion:
+  question: "每个议题的最大讨论轮次？"
+  header: "讨论轮次"
+  options:
+    - label: "3 轮（默认）"
+    - label: "5 轮"
+    - label: "自定义"
+  multiSelect: false
+```
+
+`max_rounds` 写入配置和 prompt 的 `<project_context>` 中。
 
 ### 问题 5: 工作目录
 
@@ -295,7 +318,7 @@ Agent:
 # 使用 /team-load {project_name} 可直接加载此配置创建团队
 
 format: template
-team_type: "{type_dir}"           # dev/testing/reverse/debug/security/ctf/ops
+team_type: "{type_dir}"           # dev/testing/reverse/debug/security/ctf/ops/discuss
 team_type_name: "{team_type_name}" # 中文名称
 description: "{description}"
 tech_stack: "{tech_stack}"

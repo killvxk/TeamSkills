@@ -73,3 +73,12 @@
 | 监控工程师 | monitor-engineer | 是 |
 | 安全运维 | security-ops | 是 |
 | 自动化工程师 | automation-engineer | 是 |
+
+## 8. 讨论/研讨 (discuss)
+| 角色 | 代号 | 可多实例 |
+|------|------|----------|
+| 主持人 | moderator | 否 |
+| 领域专家 | domain-expert | 是 |
+| 批判者 | critic | 否 |
+| 综合提炼者 | synthesizer | 否 |
+| 记录员 | recorder | 否 |

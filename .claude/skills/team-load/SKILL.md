@@ -123,7 +123,7 @@ AskUserQuestion:
 ### T-1: 解析配置
 
 提取：
-- `team_type`: 团队类型目录名 (dev/testing/reverse/debug/security/ctf/ops)
+- `team_type`: 团队类型目录名 (dev/testing/reverse/debug/security/ctf/ops/discuss)
 - `team_type_name`: 中文名称
 - `description`: 项目描述
 - `tech_stack`: 技术栈
@@ -282,6 +282,7 @@ TeamCreate:
 - security → security-lead
 - ctf → captain
 - ops → ops-manager
+- discuss → moderator
 
 在 members 列表中查找 name 匹配 lead 代号的成员，优先创建它。
 如果 `team_type` 为空或找不到匹配的 lead 成员，则全部并行创建。
