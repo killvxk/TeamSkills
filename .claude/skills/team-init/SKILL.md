@@ -430,7 +430,7 @@ Agent:
   name: "{member_name}"
   subagent_type: "general-purpose"
   team_name: "{project_name}"
-  prompt: "{步骤 3 构建的 prompt}"
+  prompt: "{步骤 5 构建的 prompt}"
   mode: "bypassPermissions"
   description: "Team member: {role_name}"
 ```
