@@ -182,7 +182,7 @@
 当需要增加团队成员时：
 
 1. **确定角色**：根据测试阶段确定所需角色类型
-2. **读取角色定义**：`Read ~/.claude/skills/team-init/references/testing/roles/{role_id}.md`
+2. **读取角色定义**：`Read {work_dir}/.teams/{project_name}/roles/{role_id}.md`
 3. **创建成员**：
    ```
    Agent:

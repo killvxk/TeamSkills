@@ -166,10 +166,11 @@ TeamCreate:
 
 ### T-3: 读取角色定义和工作流
 
-角色定义路径: `~/.claude/skills/team-init/references/{team_type}/roles/{role_code}.md`
-工作流路径: `~/.claude/skills/team-init/references/{team_type}/workflow.md`
+角色定义和工作流位于 team-init skill 的 references 目录下（相对于本 skill 目录）：
+- 角色定义: `../team-init/references/{team_type}/roles/{role_code}.md`
+- 工作流: `../team-init/references/{team_type}/workflow.md`
 
-> **注意**: 以上路径以 skill 实际安装目录为准。
+使用 Read 工具时，将以上相对路径拼接到本 skill 的 base directory 构建绝对路径。
 
 ### T-4: 构建角色 Prompt
 
@@ -268,8 +269,7 @@ SendMessage:
     - 团队成员: {member_list}
     - 配置来源: .team-profiles/{name}.yaml
 
-    请开始第一阶段工作。
-    工作流: ~/.claude/skills/team-init/references/{team_type}/workflow.md
+    请开始第一阶段工作。（工作流已注入到您的 prompt 中）
   summary: "团队已从模板加载，启动项目"
 ```
 

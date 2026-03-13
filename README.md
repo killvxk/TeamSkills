@@ -1,14 +1,25 @@
 # Claude Code Team Skills
 
-基于 Claude Code Agent Team 能力的团队管理技能包。通过 5 个 slash command 实现团队的创建、保存、加载、查看和删除。
+基于 Claude Code Agent Team 能力的团队管理技能包。通过 7 个 slash command 实现团队的全生命周期管理：创建、保存、加载、查看、监控和终止。内置 51 个专业角色定义，覆盖 8 种团队类型。
 
 ## 安装
 
+### 方式一：克隆到项目（推荐）
+
 ```bash
-npx skills add https://github.com/killvxk/TeamSkills
+git clone https://github.com/killvxk/TeamSkills .claude/skills-repo
+cp -r .claude/skills-repo/.claude/skills/* .claude/skills/
 ```
 
-安装后会在 `~/.claude/skills/` 下创建 `team-init`、`team-save`、`team-load`、`team-list`、`team-delete` 五个目录。
+### 方式二：全局安装
+
+```bash
+# 复制到全局 skills 目录
+git clone https://github.com/killvxk/TeamSkills /tmp/TeamSkills
+cp -r /tmp/TeamSkills/.claude/skills/* ~/.claude/skills/
+```
+
+> 所有文件路径均使用相对引用，项目级和全局安装均可正常工作。
 
 ## 命令一览
 
@@ -19,6 +30,8 @@ npx skills add https://github.com/killvxk/TeamSkills
 | `/team-load` | 从配置加载团队 | `/team-load my-project` |
 | `/team-list` | 查看已保存的配置 | `/team-list` |
 | `/team-delete` | 删除已保存的配置 | `/team-delete my-project` |
+| `/team-status` | 查看运行中的团队状态 | `/team-status my-project` |
+| `/team-stop` | 终止运行中的团队 | `/team-stop my-project` |
 
 ## 支持的团队类型
 
@@ -31,121 +44,51 @@ npx skills add https://github.com/killvxk/TeamSkills
 | 安全研究 | 安全负责人 | vuln-hunter, security-auditor | 漏洞挖掘、安全评估 |
 | CTF 比赛 | 队长 | web, pwn, reverse, crypto | CTF 竞赛 |
 | 运维 | 运维经理 | sys-engineer, monitor-engineer | 部署运维、基础设施 |
+| 讨论/研讨 | 主持人 | domain-expert, critic, synthesizer | 方案设计、技术选型、头脑风暴 |
 
-## 工作流
+共 51 个角色定义，每个角色均采用 5 板块结构（`<role>` `<rules>` `<deliverables>` `<collaboration>` `<metrics>`），Lead 角色额外包含团队管理板块。
 
-```
-/team-init ──→ 交互问答 ──→ 创建团队 ──→ 自动保存 template
-                                │
-                                ▼
-                          使用过程中调整
-                        (增删成员、改 prompt)
-                                │
-                                ▼
-/team-save ──→ 读取运行状态 ──→ 保存 snapshot
-                                │
-                                ▼
-/team-load ──→ 读取配置文件 ──→ 直接拉起团队（跳过问答）
-```
+## 核心特性
 
-## 配置格式
+### .teams/ 暂存机制
 
-团队配置保存在项目目录的 `.team-profiles/` 下，支持两种格式：
+`/team-init` 在创建团队前，将角色定义复制到 `.teams/{project_name}/roles/`，用户可在编辑器中审阅和修改，确认后再启动团队。
 
-### template — 由 `/team-init` 生成
+### 分层工作流注入
 
-存储角色代号，加载时从角色定义文件重新构建 prompt。文件小，角色定义随 skill 更新自动改进。
+- **Lead 角色**: 注入完整 workflow.md（包含各阶段详细流程）
+- **执行角色**: 仅注入阶段总览表格（节省 prompt 长度）
 
-```yaml
-format: template
-team_type: "dev"
-team_type_name: "软件开发"
-description: "电商平台后端开发"
-tech_stack: "Java, Spring Boot, PostgreSQL"
-work_dir: "/projects/my-shop"
+### 配置格式
 
-roles:
-  - role: "pm"
-    count: 1
-    is_lead: true
-  - role: "architect"
-    count: 1
-  - role: "developer"
-    count: 2
-  - role: "tester"
-    count: 1
-```
-
-### snapshot — 由 `/team-save` 生成
-
-存储每个成员的完整 prompt + 任务进度，自包含，可跨机器使用。
-
-```yaml
-format: snapshot
-name: "my-shop"
-description: "电商平台后端开发"
-team_type: "dev"
-team_type_name: "软件开发"
-
-members:
-  - name: "architect"
-    agent_type: "general-purpose"
-    model: "claude-opus-4-6"
-    mode: "bypassPermissions"
-    cwd: "/projects/my-shop"
-    prompt: |
-      你是「my-shop」项目的架构师。
-      ...
-
-tasks:
-  - original_id: "1"
-    subject: "完成需求分析"
-    status: "completed"
-    owner: "analyst"
-    blocked_by: []
-```
-
-### 格式对比
+团队配置保存在 `.team-profiles/` 下，支持两种格式：
 
 | | template | snapshot |
 |---|---|---|
 | 来源 | `/team-init` 自动生成 | `/team-save` 手动保存 |
 | 存储内容 | 角色代号 + 项目参数 | 完整 prompt + 任务进度 |
 | 自包含 | 否，依赖角色定义文件 | 是 |
-| 任务进度 | 不保存 | 保存所有任务状态和依赖 |
-| mode 支持 | 固定 bypassPermissions | 保留实际 mode |
 | 加载行为 | 读取角色定义重新构建 prompt | 直接使用保存的 prompt |
 
-## 典型场景
+Snapshot 加载时支持「仅结构加载」模式：复用团队组成但使用最新角色定义，适合角色更新后重建团队。
 
-### 首次创建团队
+### 跨角色交接协议
 
-```
-/team-init my-webapp
-→ 选择「软件开发」→ 输入描述 → 选择技术栈 → 选择角色 → 确认
-→ 自动保存到 .team-profiles/my-webapp.yaml (template)
-```
+所有角色共享统一的 `handoff-protocol.md` 交接规范，确保团队成员间的信息传递格式一致。
 
-### 调教后保存快照
+## 工作流
 
 ```
-/team-save my-webapp my-webapp-v2
-→ 保存成员配置 + 任务进度到 .team-profiles/my-webapp-v2.yaml (snapshot)
-```
-
-### 下次直接加载
-
-```
-/team-load my-webapp-v2
-→ 展示摘要 → 确认 → 团队拉起，恢复任务列表
-```
-
-### 同一配置用于不同项目
-
-```
-/team-load my-webapp-v2
-→ 选择「修改名称和目录」→ 输入新名称和路径
-→ 使用相同配置，项目名和路径不同
+/team-init ──→ 交互问答 ──→ .teams/ 暂存 ──→ 用户审阅 ──→ 创建团队
+                                                              │
+                                                              ▼
+/team-status ←── 查看运行状态 ←── 使用过程中调整（增删成员、改 prompt）
+                                                              │
+                                                              ▼
+/team-save ──→ 读取运行状态 ──→ 保存 snapshot ──→ /team-load 复用
+                                                              │
+                                                              ▼
+/team-stop ──→ 确认终止 ──→ 清理资源
 ```
 
 ## 目录结构
@@ -153,37 +96,37 @@ tasks:
 ```
 .claude/skills/
 ├── team-init/
-│   ├── SKILL.md
+│   ├── SKILL.md                     # 团队创建流程定义
+│   ├── scripts/
+│   │   └── lint-roles.sh            # 角色格式校验脚本
 │   └── references/
-│       ├── dev/                    # 软件开发
+│       ├── role-catalog.md          # 角色索引
+│       ├── shared/
+│       │   ├── handoff-protocol.md  # 跨角色交接协议
+│       │   └── role-template.md     # 角色定义模板
+│       ├── dev/                     # 软件开发 (8 角色)
 │       │   ├── workflow.md
 │       │   └── roles/
-│       │       ├── pm.md
-│       │       ├── architect.md
-│       │       ├── developer.md
-│       │       └── ...
-│       ├── testing/                # 软件测试
-│       ├── reverse/                # 逆向工程
-│       ├── debug/                  # 调试/Bug修复
-│       ├── security/               # 安全研究
-│       ├── ctf/                    # CTF 比赛
-│       └── ops/                    # 运维
-├── team-save/
-│   └── SKILL.md
-├── team-load/
-│   └── SKILL.md
-├── team-list/
-│   └── SKILL.md
-└── team-delete/
-    └── SKILL.md
+│       ├── testing/                 # 软件测试 (7 角色)
+│       ├── reverse/                 # 逆向工程 (6 角色)
+│       ├── debug/                   # 调试/Bug修复 (6 角色)
+│       ├── security/                # 安全研究 (6 角色)
+│       ├── ctf/                     # CTF 比赛 (8 角色)
+│       ├── ops/                     # 运维 (6 角色)
+│       └── discuss/                 # 讨论/研讨 (5 角色)
+├── team-save/   └── SKILL.md
+├── team-load/   └── SKILL.md
+├── team-list/   └── SKILL.md
+├── team-delete/ └── SKILL.md
+├── team-status/ └── SKILL.md       # 运行时团队状态查看
+└── team-stop/   └── SKILL.md       # 团队终止与资源清理
 ```
 
 ## 注意事项
 
-- `.team-profiles/` 建议加入 `.gitignore`（snapshot 可能包含项目路径）
+- `.team-profiles/` 和 `.teams/` 建议加入 `.gitignore`
 - template 格式依赖角色定义文件，跨机器需确保 skill 已安装
 - snapshot 格式自包含，可直接复制到其他机器
-- Lead 角色由系统自动创建，不包含在保存的配置中
 - 加载 snapshot 时，原 in_progress 任务会重置为 pending（新 agent 没有之前的上下文）
 - 加载时检测到同名团队正在运行会显示警告
 - 覆盖保存时旧文件自动备份为 `.yaml.bak`

@@ -163,7 +163,7 @@
 
 ## 团队管理
 
-你管理以下团队成员，角色定义文件位于 `~/.claude/skills/team-init/references/ops/roles/{role}.md`：
+你管理以下团队成员，角色定义文件位于 `{work_dir}/.teams/{project_name}/roles/{role}.md`：
 
 | 角色 | 文件 | 职责领域 |
 |------|------|----------|

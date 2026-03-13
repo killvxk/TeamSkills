@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # lint-roles.sh — TeamSkill 角色定义文件格式校验脚本
-# 检查 .claude/skills/team-init/references/ 下所有角色文件是否符合 5 板块结构
+# 检查 references/ 下所有角色文件是否符合 5 板块结构
 #
-# 用法:
-#   bash scripts/lint-roles.sh                    # 检查所有角色文件
-#   bash scripts/lint-roles.sh dev                # 仅检查 dev 团队
-#   bash scripts/lint-roles.sh dev/roles/pm.md    # 检查单个文件
+# 用法（从项目根目录或任意位置运行均可）:
+#   bash .claude/skills/team-init/scripts/lint-roles.sh              # 检查所有核心角色
+#   bash .claude/skills/team-init/scripts/lint-roles.sh dev          # 仅检查 dev 团队
+#   bash .claude/skills/team-init/scripts/lint-roles.sh dev/roles/pm.md  # 检查单个文件
+#   bash .claude/skills/team-init/scripts/lint-roles.sh --extensions # 检查扩展角色
 
 set -euo pipefail
 
@@ -22,8 +23,10 @@ WARNINGS=0
 PASSED=0
 TOTAL=0
 
-# 角色文件根目录
-ROLES_ROOT=".claude/skills/team-init/references"
+# 自动定位 references 目录（相对于脚本自身位置）
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SKILL_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+ROLES_ROOT="$SKILL_ROOT/references"
 
 # Lead 角色列表（需要额外检查管理段）
 LEAD_ROLES="pm.md test-manager.md re-lead.md debug-lead.md security-lead.md captain.md ops-manager.md moderator.md"
@@ -200,13 +203,23 @@ main() {
     local target="${1:-}"
     local files=()
 
-    if [ -z "$target" ]; then
-        # 检查所有角色文件
+    if [ "$target" = "--extensions" ]; then
+        # 检查扩展角色
+        local ext_root="$ROLES_ROOT/extensions"
+        if [ ! -d "$ext_root" ]; then
+            echo -e "${RED}扩展角色目录不存在: $ext_root${NC}"
+            exit 1
+        fi
         while IFS= read -r line; do
             [ -n "$line" ] && files+=("$line")
-        done < <(find "$ROLES_ROOT" -path "*/roles/*.md" 2>/dev/null | sort)
+        done < <(find "$ext_root" -name "*.md" -not -name "*catalog*" 2>/dev/null | sort)
+    elif [ -z "$target" ]; then
+        # 检查所有核心角色（排除 extensions/ 和 shared/）
+        while IFS= read -r line; do
+            [ -n "$line" ] && files+=("$line")
+        done < <(find "$ROLES_ROOT" -path "*/roles/*.md" -not -path "*/extensions/*" 2>/dev/null | sort)
     elif [ -f "$target" ]; then
-        # 检查单个文件
+        # 检查单个文件（支持绝对路径和相对路径）
         files+=("$target")
     elif [ -d "$ROLES_ROOT/$target" ]; then
         # 检查指定团队目录
@@ -217,9 +230,14 @@ main() {
         while IFS= read -r line; do
             [ -n "$line" ] && files+=("$line")
         done < <(find "$ROLES_ROOT/$target/roles" -name "*.md" 2>/dev/null | sort)
+    elif [ -d "$ROLES_ROOT/extensions/$target" ]; then
+        # 检查扩展角色的指定部门
+        while IFS= read -r line; do
+            [ -n "$line" ] && files+=("$line")
+        done < <(find "$ROLES_ROOT/extensions/$target" -name "*.md" -not -name "*catalog*" 2>/dev/null | sort)
     else
         echo -e "${RED}找不到目标: $target${NC}"
-        echo "用法: bash scripts/lint-roles.sh [团队目录|文件路径]"
+        echo "用法: bash .claude/skills/team-init/scripts/lint-roles.sh [团队目录|文件路径|--extensions]"
         exit 1
     fi
 
