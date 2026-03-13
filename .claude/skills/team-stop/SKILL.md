@@ -2,7 +2,8 @@
 name: team-stop
 description: |
   This skill should be used when the user asks to "停止团队", "team stop",
-  "终止团队", "关闭团队", "解散团队". 主动终止运行中的团队，
+  "终止团队", "关闭团队", "解散团队", "stop team", "terminate team",
+  "shutdown team", "disband team". 主动终止运行中的团队，
   向所有成员发送关闭请求并清理团队资源。
 argument-hint: "[团队名称]"
 disable-model-invocation: true
@@ -94,13 +95,18 @@ AskUserQuestion:
   multiSelect: false
 ```
 
-### 步骤 2.5: 保存（如用户选择"先保存再终止"）
+### 步骤 3: 保存（如用户选择"先保存再终止"）
 
-调用 `/team-save` skill 的流程保存团队快照，完成后继续步骤 3。
+执行以下保存流程（保存名称默认为 `{team_name}`），完成后继续步骤 4：
 
-等效操作：按 team-save SKILL.md 的步骤 2-5 执行保存流程，保存名称默认为 `{team_name}`。
+1. 读取 `~/.claude/teams/{team_name}/config.json`，提取成员列表（排除 `agentType: "team-lead"`）
+2. 使用 TaskList / TaskGet 采集当前任务进度
+3. 确保目录存在：`mkdir -p "{当前工作目录}/.team-profiles"`
+4. 如果 `.team-profiles/{team_name}.yaml` 已存在，备份为 `.yaml.bak`
+5. 使用 Write 写入快照 YAML（`format: snapshot`，包含成员 prompt 和任务进度，格式参考 `/team-save` skill）
+6. 输出保存确认：`团队快照已保存到: .team-profiles/{team_name}.yaml`
 
-### 步骤 3: 向所有成员发送关闭请求
+### 步骤 4: 向所有成员发送关闭请求
 
 读取 config.json 获取所有成员（排除 `agentType: "team-lead"`），逐个发送关闭请求：
 
@@ -117,7 +123,9 @@ SendMessage:
 
 **并行发送**：所有 SendMessage 可以在同一轮次内并行发送，无需逐个等待。
 
-### 步骤 4: 清理团队资源
+**错误处理**：如果某成员无法接收消息（已断开或无响应），记录警告并继续终止流程，不因个别成员无法通知而阻塞整个终止过程。
+
+### 步骤 5: 清理团队资源
 
 使用 TeamDelete 工具删除团队：
 
@@ -129,10 +137,10 @@ TeamDelete:
 如果 TeamDelete 工具不可用，使用 Bash 清理：
 
 ```bash
-rm -rf ~/.claude/teams/{team_name}
+rm -rf "$HOME/.claude/teams/{team_name}"
 ```
 
-### 步骤 5: 输出结果
+### 步骤 6: 输出结果
 
 ```
 团队已终止: {team_name}
@@ -146,7 +154,7 @@ rm -rf ~/.claude/teams/{team_name}
   - 可使用 /team-load {team_name} 恢复团队
 ```
 
-如果选择了"全部终止"，对每个团队重复步骤 2-5，最后输出汇总：
+如果选择了"全部终止"，对每个团队重复步骤 2-6，最后输出汇总：
 
 ```
 已终止 {N} 个团队:

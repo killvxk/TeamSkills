@@ -2,8 +2,9 @@
 name: team-delete
 description: |
   This skill should be used when the user asks to "删除团队配置", "team delete",
-  "移除团队", "清理团队配置". 从 .team-profiles/ 目录中删除指定的
-  YAML 配置文件。
+  "delete team config", "移除团队", "remove saved team", "清理团队配置".
+  从 .team-profiles/ 目录中删除已保存的 YAML 配置文件（非运行中团队，
+  运行中团队请用 /team-stop）。
 argument-hint: "[配置名称]"
 disable-model-invocation: true
 version: 0.1.0

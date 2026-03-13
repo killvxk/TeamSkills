@@ -2,7 +2,7 @@
 name: team-init
 description: |
   This skill should be used when the user asks to "初始化团队", "创建开发团队",
-  "team init", "组建团队", "启动项目团队". 通过交互式问答收集项目信息，
+  "team init", "create team", "build team", "组建团队", "启动项目团队". 通过交互式问答收集项目信息，
   创建包含专业角色的 Agent 工程团队。支持 8 种团队类型：软件开发、软件测试、
   逆向工程、调试/Bug修复、安全研究、CTF比赛、软件与服务器运维、讨论/研讨。
 argument-hint: "[项目名称]"
@@ -137,7 +137,6 @@ AskUserQuestion:
 AskUserQuestion:
   question: "选择需要的角色（{lead_role} 默认包含）。多实例角色可在「其他」中用 'developer x2' 格式指定数量"
   header: "团队角色"
-  multiSelect: true
   options:
     - label: "全部角色 (推荐)"
       description: "包含该类型所有角色各 1 个"

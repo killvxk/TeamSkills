@@ -2,8 +2,10 @@
 name: team-list
 description: |
   This skill should be used when the user asks to "列出团队", "team list",
-  "查看团队配置", "有哪些团队". 扫描 .team-profiles/ 目录，
-  展示所有可用配置的摘要信息。
+  "list teams", "show teams", "查看团队配置", "有哪些团队",
+  "what teams are saved". 扫描 .team-profiles/ 目录，
+  展示所有已保存配置的摘要信息。与 /team-status（查看运行中团队）不同，
+  此技能查看磁盘上的持久化配置。
 argument-hint: ""
 disable-model-invocation: true
 version: 0.1.0
@@ -39,7 +41,7 @@ version: 0.1.0
 - **description**: 团队描述
 - **team_type_name**: 团队类型中文名（如有）
 - **成员数量**:
-  - template: 统计 `roles[]` 的 count 总和
+  - template: 统计 `roles[]` 的 count 总和（每个 role 项有 `role` 代号和 `count` 数量，如 `{role: "developer", count: 2}`）
   - snapshot: 统计 `members[]` 长度
 - **任务统计**（仅 snapshot）:
   - completed / in_progress / pending 各多少个

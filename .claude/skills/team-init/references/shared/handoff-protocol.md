@@ -141,6 +141,61 @@ Lead 角色在推进到下一个工作流阶段前，必须确认以下检查清
 | 修复实现 | 代码审查 | fix-engineer → code-reviewer | 修复 PR |
 | 修复实现 | 回归测试 | fix-engineer → regression-tester | 修复 PR + 回归范围 |
 
+### reverse 团队
+
+| 上游 | 下游 | 交接角色 | 交付物 |
+|------|------|---------|--------|
+| 侦查与信息收集 | 静态分析 | re-lead → static-analyst | 目标属性报告 + 分析优先级 |
+| 静态分析 | 动态分析 | static-analyst → dynamic-analyst | 函数映射表 + 待验证假设 |
+| 静态分析 | 协议逆向 | static-analyst → protocol-analyst | 通信函数列表 + 数据结构定义 |
+| 动态分析 | 漏洞研究 | dynamic-analyst → vuln-researcher | 行为分析报告 + 攻击面评估 |
+| 各分析角色 | 文档编写 | analyst(s) → documenter | 分析结果 + 置信度标注 |
+
+### security 团队
+
+| 上游 | 下游 | 交接角色 | 交付物 |
+|------|------|---------|--------|
+| 侦查 | 漏洞挖掘 | security-lead → vuln-hunter | 攻击面地图 + 高价值目标列表 |
+| 侦查 | 代码审计 | security-lead → security-auditor | 审计范围 + 源代码访问 |
+| 漏洞挖掘 | PoC 开发 | vuln-hunter → exploit-dev | 漏洞详情 + 触发条件 |
+| 代码审计 | PoC 开发 | security-auditor → exploit-dev | 审计发现 + 漏洞路径 |
+| PoC 验证 | 防御方案 | exploit-dev → defense-researcher | PoC + 利用链分析 |
+| 各角色 | 报告编写 | all → report-writer | 发现报告 + 缓解建议 |
+
+### ctf 团队
+
+CTF 比赛以即时协作为主，交接模式不同于工程项目的阶段串联：
+
+| 场景 | 交接角色 | 交付物 |
+|------|---------|--------|
+| 题目分配 | captain → 各选手 | 题目描述 + 优先级 + 时间预算 |
+| 解题完成 | 选手 → captain | `[SOLVED]` flag + write-up |
+| 卡题求助 | 选手 → captain → 支援选手 | `[STUCK]` 当前进展 + 已尝试方法 |
+| 跨方向线索 | 选手 → 相关选手 | `[INFO]` 线索内容 + 可能关联 |
+
+### ops 团队
+
+| 上游 | 下游 | 交接角色 | 交付物 |
+|------|------|---------|--------|
+| 现状评估 | 方案规划 | 评估角色 → ops-manager | 现状评估报告 |
+| 方案规划 | 实施部署 | ops-manager → sys-engineer/net-engineer/dba | 变更计划 + 回滚方案 |
+| 实施部署 | 安全审核 | 实施角色 → security-ops | 变更清单 + 配置变更 |
+| 实施部署 | 监控建设 | 实施角色 → monitor-engineer | 新服务/变更清单 + 监控需求 |
+| 监控建设 | 运行优化 | monitor-engineer → automation-engineer | 告警数据 + 重复操作清单 |
+
+### discuss 团队
+
+讨论团队以轮次驱动，非阶段串联：
+
+| 场景 | 交接角色 | 交付物 |
+|------|---------|--------|
+| 议题发布 | moderator → 所有成员 | `[TOPIC]` 议题背景 + 讨论范围 |
+| 观点收集 | 各成员 → moderator | `[OPINION]` 观点立场 |
+| 观点广播 | moderator → 所有成员 | `[REVIEW]` 汇总摘要 + 分歧点 |
+| 交叉回应 | 各成员 → synthesizer | `[RESPONSE]` 针对分歧的回应 |
+| 总结提炼 | synthesizer → moderator | `[SUMMARY]` 共识/分歧提炼 |
+| 最终决策 | moderator → synthesizer | `[DECISION]` 决策 → 生成产出文档 |
+
 ---
 
 ## 阻塞升级协议

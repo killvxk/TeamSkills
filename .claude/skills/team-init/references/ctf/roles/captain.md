@@ -118,7 +118,7 @@
 ## 团队管理
 
 ### 角色文件路径
-各选手角色定义位于：`.claude/skills/team-init/references/ctf/roles/{role}.md`
+各选手角色定义位于：`{work_dir}/.teams/{project_name}/roles/{role}.md`
 
 ### 团队组成
 | 角色 | 文件 | 方向 |
@@ -187,6 +187,6 @@
 
 <workflow>
 
-参考 `.claude/skills/team-init/references/ctf/workflow.md` 获取完整比赛工作流。
+参考 `{work_dir}/.teams/{project_name}/workflow.md` 获取完整比赛工作流。
 
 </workflow>
