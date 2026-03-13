@@ -3,7 +3,8 @@ name: team-load
 description: |
   This skill should be used when the user asks to "加载团队", "team load",
   "恢复团队", "载入团队配置", "load team", "restore team",
-  "load team config". 从 .team-profiles/ 读取 YAML 配置，
+  "load team config", "载入团队", "重新加载团队", "reload team".
+  从 .team-profiles/ 读取 YAML 配置，
   跳过交互问答直接创建团队。支持 template 和 snapshot 两种格式。
 argument-hint: "[配置名称]"
 disable-model-invocation: true
@@ -17,6 +18,10 @@ version: 0.1.0
 ## 路径约定
 
 本 skill 中跨 skill 路径均相对于 SKILL.md 所在目录（skill base directory）。执行时以 base directory 拼接绝对路径。**不要硬编码 `~/.claude/skills/`** — skill 可能安装在项目级 `.claude/skills/` 或全局 `~/.claude/skills/` 下。
+
+## 前置条件
+
+- **team-init skill** 必须位于兄弟路径 `../team-init/`。本 skill 的角色定义文件（含扩展角色）均从 `../team-init/references/` 读取。
 
 ## 支持的配置格式
 
@@ -69,7 +74,7 @@ AskUserQuestion:
 
 扫描 `~/.claude/teams/` 目录，检查是否存在与即将创建的团队同名的目录。
 
-如果存在同名团队目录，在步骤 5 的确认摘要中增加警告：
+如果存在同名团队目录，在步骤 5（确认并允许覆盖）的摘要中增加警告：
 
 ```
 ⚠ 检测到同名团队「{project_name}」正在运行。
@@ -80,6 +85,8 @@ AskUserQuestion:
 这只是警告，不阻止加载。
 
 ### 步骤 4: 选择加载模式（仅 snapshot 格式）
+
+**仅当 snapshot 格式时执行此步骤；template 格式直接跳至步骤 5。**
 
 如果是 snapshot 格式，询问加载模式：
 
@@ -97,7 +104,7 @@ AskUserQuestion:
 
 **完整加载**: 使用 snapshot 中保存的 prompt 和任务，走「快照加载流程」（当前行为）。
 
-**仅结构加载**: 从 snapshot 中提取成员组成（角色名和数量），但使用 references/ 中的**原始角色定义**重建 prompt，不创建任务。等效于将 snapshot 当作 template 使用。走「模板加载流程」，具体处理见下方「仅结构加载的转换规则」。
+**仅结构加载**: 从 snapshot 中提取成员组成（角色名和数量），但使用 ../team-init/references/ 中的**原始角色定义**重建 prompt，不创建任务。等效于将 snapshot 当作 template 使用。走「模板加载流程」，具体处理见下方「仅结构加载的转换规则」。
 
 如果是 template 格式，跳过此步骤（template 本身就是结构加载）。
 
@@ -159,7 +166,7 @@ AskUserQuestion:
 - `description`: 项目描述
 - `tech_stack`: 技术栈
 - `work_dir`: 工作目录（"." 替换为当前工作目录）
-- `roles[]`: 角色列表，每项有 `role`（代号）、`count`（数量）、`is_lead`（是否 Lead）
+- `roles[]`: 角色列表，每项有 `role`（代号）、`count`（数量）、`is_lead`（是否 Lead）、`source`（可选，`extension` 表示扩展角色）、`department`（可选，扩展角色所属领域）
 
 ### T-2: 创建团队
 
@@ -172,14 +179,17 @@ TeamCreate:
 ### T-3: 读取角色定义和工作流
 
 角色定义和工作流位于 team-init skill 的 references 目录下（相对于本 skill 目录）：
-- 角色定义: `../team-init/references/{team_type}/roles/{role_code}.md`
+- 核心角色定义: `../team-init/references/{team_type}/roles/{role_code}.md`
+- 扩展角色定义: `../team-init/references/extensions/{department}/{role_code}.md`
 - 工作流: `../team-init/references/{team_type}/workflow.md`
+
+**扩展角色识别**: 角色配置中 `source: extension` 的角色为扩展角色。其 `role` 字段格式为 `ext-{department}-{role_code}`，需从 `department` 字段获取部门名，从 `role` 字段去掉 `ext-{department}-` 前缀获取角色代号，然后从 `../team-init/references/extensions/{department}/{role_code}.md` 读取定义。例如：engineering 领域的 AI 工程师，存储为 `role: "ext-engineering-engineering-ai-engineer"`，去掉 `ext-engineering-` 前缀得到 `engineering-ai-engineer`，路径为 `../team-init/references/extensions/engineering/engineering-ai-engineer.md`。
 
 使用 Read 工具时，将以上相对路径拼接到本 skill 的 base directory 构建绝对路径。
 
 ### T-4: 构建角色 Prompt
 
-**Lead 角色与执行角色使用不同的工作流注入策略**（与 `/team-init` 步骤 5 一致）。
+**Lead 角色与执行角色使用不同的工作流注入策略**（与 `/team-init`「步骤 5: 构建角色 Prompt」逻辑一致）。
 
 #### Lead 角色的 Prompt
 
@@ -235,6 +245,34 @@ TeamCreate:
 </your_role>
 ```
 
+#### 扩展角色的 Prompt
+
+扩展角色（`source: extension`）使用与执行角色相同的 prompt 结构，额外标注扩展来源：
+
+```
+你是「{project_name}」项目的{role_name}（扩展角色 — {department}）。
+
+<project_context>
+项目名称: {project_name}
+团队类型: {team_type_name}
+项目描述: {description}
+技术栈: {tech_stack}
+工作目录: {work_dir}
+</project_context>
+
+<team_members>
+{列出所有成员的名称和角色}
+</team_members>
+
+<workflow_overview>
+{仅 workflow.md 中「阶段总览」表格}
+</workflow_overview>
+
+<your_role>
+{扩展角色 .md 文件的完整内容}
+</your_role>
+```
+
 ### T-5: 创建初始任务
 
 使用 TaskCreate 根据 workflow.md 的阶段创建任务骨架。
@@ -258,6 +296,7 @@ Agent:
 命名规则：
 - 单实例角色: 直接使用代号
 - 多实例角色: 代号-序号
+- 扩展角色: 使用完整代号 (ext-marketing-xiaohongshu 等)
 
 ### T-7: 通知 Lead 启动
 
@@ -289,7 +328,7 @@ SendMessage:
 提取：
 - `name`: 团队名称
 - `description`: 团队描述
-- `team_type`: 团队类型目录名（可选，用于 S-2 description 和 S-4 lead 识别）
+- `team_type`: 团队类型目录名（建议必填；缺失时「仅结构加载」不可用，且 Lead 优先创建无法执行）
 - `team_type_name`: 团队类型中文名（可选，用于 S-2 description）
 - `members[]`: 成员列表，每项有：
   - `name`: 成员名称
@@ -411,8 +450,9 @@ snapshot 必须包含 `team_type` 字段。如果 `team_type` 为空，无法确
 ### 转换步骤
 
 1. **提取成员组成**: 从 `members[]` 中提取每个成员的 `name`，根据命名规则推断角色代号：
+   - `ext-` 前缀: 扩展角色，解析 `ext-{department}-{role_code}`，标记 `source: extension` 和 `department`
    - 无序号后缀: name 即为 role_code（如 `pm` → role `pm`）
-   - 有序号后缀: 去掉 `-{N}` 获取 role_code（如 `developer-2` → role `developer`），统计同一 role_code 的数量作为 count
+   - 有序号后缀: 去掉末尾 `-数字序号` 获取 role_code（如 `developer-2`、`developer-10` → role `developer`），统计同一 role_code 的数量作为 count
    - 识别 Lead: 按 team_type 的 lead 映射表匹配
 
 2. **构造虚拟 template**: 用提取的信息构造等效于 template 格式的配置：
@@ -426,9 +466,14 @@ snapshot 必须包含 `team_type` 字段。如果 `team_type` 为空，无法确
      - role: "{role_code}"
        count: {N}
        is_lead: true/false
+     # 扩展角色（从 ext- 前缀成员推断）
+     - role: "ext-{department}-{role_code}"
+       count: 1
+       source: extension
+       department: "{department}"
    ```
 
-3. **走模板加载流程**: 使用虚拟 template 执行 T-1 到 T-7，从 references/ 读取原始角色定义，构建全新的 prompt，创建全新的任务骨架。
+3. **走模板加载流程**: 使用虚拟 template 执行 T-1 到 T-7，从 ../team-init/references/ 读取原始角色定义，构建全新的 prompt，创建全新的任务骨架。
 
 ### 效果
 

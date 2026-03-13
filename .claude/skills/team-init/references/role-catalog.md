@@ -82,3 +82,24 @@
 | 批判者 | critic | 否 |
 | 综合提炼者 | synthesizer | 否 |
 | 记录员 | recorder | 否 |
+
+---
+
+## 扩展角色库
+
+除上述 8 种团队类型的内建角色外，还可从扩展角色库中按需添加专业角色。扩展角色横跨 12 个领域共 146 个角色，详见 `extensions/extension-catalog.md`。
+
+| 领域 | 角色数 | 示例角色 |
+|------|--------|---------|
+| engineering | 22 | 前端、后端、AI、DevOps、安全、嵌入式 |
+| design | 8 | UI、UX、品牌、视觉叙事 |
+| marketing | 29 | 小红书、抖音、微信、B站、SEO |
+| game-development | 19 | Unity、Unreal、Godot、Roblox |
+| paid-media | 7 | PPC、社交广告、程序化采买 |
+| product | 4 | Sprint排序、趋势研究、反馈分析 |
+| project-management | 6 | 制片人、项目协调、实验追踪 |
+| sales | 8 | 赢单策略、售前工程、Pipeline分析 |
+| support | 8 | 数据分析、法务合规、财务、招聘 |
+| spatial-computing | 6 | visionOS、WebXR、Metal |
+| specialized | 21 | 编排、区块链安全、MCP、合规 |
+| testing | 8 | 证据收集、无障碍、API测试 |

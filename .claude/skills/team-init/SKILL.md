@@ -2,9 +2,9 @@
 name: team-init
 description: |
   This skill should be used when the user asks to "初始化团队", "创建开发团队",
-  "team init", "create team", "build team", "组建团队", "启动项目团队". 通过交互式问答收集项目信息，
-  创建包含专业角色的 Agent 工程团队。支持 8 种团队类型：软件开发、软件测试、
-  逆向工程、调试/Bug修复、安全研究、CTF比赛、软件与服务器运维、讨论/研讨。
+  "team init", "create team", "build team", "组建团队", "启动项目团队",
+  "添加扩展角色", "add extension roles". 通过交互式问答收集项目信息，
+  创建包含专业角色的 Agent 工程团队。支持 8 种团队类型和 146 个扩展专业角色（跨 12 领域）。
 argument-hint: "[项目名称]"
 disable-model-invocation: true
 version: 0.1.0
@@ -169,6 +169,76 @@ AskUserQuestion:
 - ops: ops-manager + sys-engineer
 - discuss: moderator + domain-expert
 
+### 问题 4.2: 扩展角色（可选）
+
+```
+AskUserQuestion:
+  question: "是否从扩展角色库添加专业角色？（146 个跨 12 领域的专家角色）"
+  header: "扩展角色"
+  options:
+    - label: "跳过"
+      description: "仅使用核心团队角色"
+    - label: "浏览并选择"
+      description: "从扩展角色库中挑选专业角色"
+  multiSelect: false
+```
+
+若选择「跳过」→ 若 team_type 为 discuss 则进入问题 4.5（讨论轮次）；否则进入问题 5（确认）。
+若选择「浏览并选择」→ 进入问题 4.3。
+
+### 问题 4.3: 选择扩展领域
+
+读取 `references/extensions/extension-catalog.md` 获取完整领域列表。
+
+```
+AskUserQuestion:
+  question: "选择要浏览的领域（可多选）"
+  header: "扩展角色领域"
+  options:
+    - label: "engineering"
+      description: "22个: 前端、后端、AI、DevOps、安全、嵌入式..."
+    - label: "design"
+      description: "8个: UI、UX、品牌、视觉叙事..."
+    - label: "marketing"
+      description: "29个: 小红书、抖音、微信、B站、SEO..."
+    - label: "game-development"
+      description: "19个: Unity、Unreal、Godot、Roblox..."
+    - label: "paid-media"
+      description: "7个: PPC、社交广告、程序化采买..."
+    - label: "product"
+      description: "4个: Sprint排序、趋势研究、反馈分析..."
+    - label: "project-management"
+      description: "6个: 制片人、项目协调、实验追踪..."
+    - label: "sales"
+      description: "8个: 赢单策略、售前工程、Pipeline分析..."
+    - label: "support"
+      description: "8个: 数据分析、法务合规、财务、招聘..."
+    - label: "spatial-computing"
+      description: "6个: visionOS、WebXR、Metal..."
+    - label: "specialized"
+      description: "21个: 编排、区块链安全、MCP、合规..."
+    - label: "testing"
+      description: "8个: 证据收集、无障碍、API测试..."
+  multiSelect: true
+```
+
+### 问题 4.4: 选择具体角色
+
+对用户选中的每个领域，从 `references/extensions/extension-catalog.md` 读取该领域的角色列表，展示给用户选择：
+
+```
+AskUserQuestion:
+  question: "选择要添加的 {department} 角色"
+  header: "{department} 扩展角色"
+  options:
+    {从 extension-catalog.md 读取对应领域角色列表，每个角色一个选项}
+  multiSelect: true
+```
+
+对每个选中领域重复此问题。记录所有选中的扩展角色 `ext_roles[]`，每项包含 `department` 和 `role_code`。
+
+完成所有领域的角色选择后：若 team_type 为 discuss → 进入问题 4.5（讨论轮次）；否则 → 进入问题 5（工作目录）。
+
 ### 问题 4.5: 讨论轮次（仅 discuss 类型触发）
 
 ```
@@ -214,6 +284,10 @@ AskUserQuestion:
 团队成员:
   - {lead_role} x1 (Lead)
   - {role_name} x{count}
+  ...
+{若有扩展角色}
+扩展角色:
+  - {ext_role_name} ({department})
   ...
 
 预计创建 {N} 个 Agent
@@ -263,10 +337,14 @@ AskUserQuestion:
 **操作步骤**:
 
 1. 使用 Bash 创建目录: `mkdir -p "{work_dir}/.teams/{project_name}/roles"`
-2. 使用 Read 读取每个角色定义文件和 workflow.md
-3. 使用 Write 将每个角色定义写入 `.teams/{project_name}/roles/{role_code}.md`
-4. 使用 Write 将 workflow.md 写入 `.teams/{project_name}/workflow.md`
-5. 使用 Write 创建 `.teams/{project_name}/team.yaml`:
+2. 使用 Read 读取每个核心角色定义文件和 workflow.md
+3. 使用 Write 将每个核心角色定义写入 `.teams/{project_name}/roles/{role_code}.md`
+4. 若有扩展角色（`ext_roles[]` 非空）:
+   - 扩展角色来源路径: `references/extensions/{department}/{role_code}.md`
+   - 使用 Read 读取每个扩展角色定义
+   - 使用 Write 写入 `.teams/{project_name}/roles/ext-{department}-{role_code}.md`（加 `ext-` 前缀）
+5. 使用 Write 将 workflow.md 写入 `.teams/{project_name}/workflow.md`
+6. 使用 Write 创建 `.teams/{project_name}/team.yaml`:
 
 ```yaml
 # 团队配置 - 由 /team-init 准备
@@ -286,7 +364,13 @@ roles:
     is_lead: true
   - role: "{role_code}"
     count: {N}
-  # ...
+  # ... 核心角色
+
+  # 扩展角色（如有）
+  # - role: "ext-{department}-{role_code}"
+  #   count: 1
+  #   source: extension
+  #   department: "{department}"
 ```
 
 ### 步骤 2: 用户审阅角色定义
@@ -372,6 +456,7 @@ Lead 角色负责管理整个工作流，因此注入**完整的 workflow.md 内
 项目描述: {description}
 技术栈: {tech_stack}
 工作目录: {work_dir}
+{若 discuss 类型} 最大讨论轮次: {max_rounds}
 </project_context>
 
 <team_members>
@@ -400,6 +485,7 @@ Lead 角色负责管理整个工作流，因此注入**完整的 workflow.md 内
 项目描述: {description}
 技术栈: {tech_stack}
 工作目录: {work_dir}
+{若 discuss 类型} 最大讨论轮次: {max_rounds}
 </project_context>
 
 <team_members>
@@ -412,6 +498,35 @@ Lead 角色负责管理整个工作流，因此注入**完整的 workflow.md 内
 
 <your_role>
 {对应角色 .md 文件的完整内容}
+</your_role>
+```
+
+#### 扩展角色的 Prompt
+
+扩展角色（`ext-` 前缀）使用与执行角色相同的 prompt 结构（`<workflow_overview>` 而非完整 workflow），并额外标注扩展角色来源：
+
+```
+你是「{project_name}」项目的{role_name}（扩展角色 — {department}）。
+
+<project_context>
+项目名称: {project_name}
+团队类型: {team_type_name}
+项目描述: {description}
+技术栈: {tech_stack}
+工作目录: {work_dir}
+{若 discuss 类型} 最大讨论轮次: {max_rounds}
+</project_context>
+
+<team_members>
+{列出所有成员的名称和角色}
+</team_members>
+
+<workflow_overview>
+{仅 workflow.md 中「阶段总览」表格，不含各 Phase 详细流程}
+</workflow_overview>
+
+<your_role>
+{扩展角色 .md 文件的完整内容}
 </your_role>
 ```
 
@@ -438,6 +553,7 @@ Agent:
 命名规则：
 - 单实例角色: 直接使用代号 (pm, architect, captain 等)
 - 多实例角色: 代号-序号 (developer-1, web-2 等)
+- 扩展角色: 使用完整代号 (ext-marketing-xiaohongshu, ext-design-ui-designer 等)
 
 创建顺序：先创建 Lead，再并行创建其他角色。
 
@@ -463,10 +579,16 @@ roles:
   - role: "{lead_role_code}"
     count: 1
     is_lead: true
-  # 其他角色
+  # 核心角色
   - role: "{role_code}"
     count: {N}
-  # ... 列出所有选中的角色及数量
+  # ... 列出所有选中的核心角色及数量
+
+  # 扩展角色（如有）
+  # - role: "ext-{department}-{role_code}"
+  #   count: 1
+  #   source: extension
+  #   department: "{department}"
 ```
 
 保存后输出提示：
@@ -521,6 +643,8 @@ SendMessage:
 - **`references/{type_dir}/workflow.md`** - 各团队类型的工作流定义
 - **`references/shared/handoff-protocol.md`** - 跨角色交接协议
 - **`references/shared/role-template.md`** - 角色定义标准模板
+- **`references/extensions/extension-catalog.md`** - 扩展角色索引（146 个跨 12 领域）
+- **`references/extensions/{department}/{role_code}.md`** - 扩展角色定义
 
 ## 脚本工具
 
