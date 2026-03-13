@@ -157,6 +157,7 @@
 ## 团队管理操作
 
 ### 查看团队状态
+> 注：`~/.claude/teams/` 是 Claude Code 管理运行中团队的内部目录，此路径由平台固定，与 skill 安装路径无关。
 1. 读取团队配置：`Read ~/.claude/teams/{team_name}/config.json`
 2. 查看任务列表：使用 TaskList 工具
 3. 了解每个成员的当前任务和阶段状态

@@ -2,7 +2,8 @@
 name: team-status
 description: |
   This skill should be used when the user asks to "查看团队状态", "team status",
-  "团队运行情况", "团队进度", "谁在运行". 查询当前运行中的团队的实时状态，
+  "check team progress", "who is running", "团队运行情况", "团队进度",
+  "谁在运行", "active teams". 查询当前运行中的团队的实时状态，
   包括成员列表、任务进度和活跃情况。与 /team-list（查看磁盘配置）互补。
 argument-hint: "[团队名称]"
 disable-model-invocation: true
@@ -71,7 +72,7 @@ AskUserQuestion:
 - **团队名称** (`name`)
 - **团队描述** (`description`)
 - **成员列表** (`members[]`)：每个成员的 name、agentType、color
-- **创建时间**（如果有）
+- **创建时间**（`createdAt` 字段，如果存在；不存在则省略）
 
 ### 步骤 4: 获取任务状态
 
@@ -94,8 +95,8 @@ AskUserQuestion:
 成员: {N} 个活跃
 
 成员列表:
-  {color_indicator} {member_name}  ({agentType})
-  {color_indicator} {member_name}  ({agentType})
+  {color} {member_name}  ({agentType})
+  {color} {member_name}  ({agentType})
   ...
   （排除 team-lead 类型成员）
 

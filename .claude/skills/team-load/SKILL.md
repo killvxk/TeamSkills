@@ -2,7 +2,8 @@
 name: team-load
 description: |
   This skill should be used when the user asks to "加载团队", "team load",
-  "恢复团队", "载入团队配置". 从 .team-profiles/ 读取 YAML 配置，
+  "恢复团队", "载入团队配置", "load team", "restore team",
+  "load team config". 从 .team-profiles/ 读取 YAML 配置，
   跳过交互问答直接创建团队。支持 template 和 snapshot 两种格式。
 argument-hint: "[配置名称]"
 disable-model-invocation: true
@@ -12,6 +13,10 @@ version: 0.1.0
 # 团队配置加载
 
 从项目目录的 `.team-profiles/` 加载已保存的团队配置，跳过交互问答，直接创建团队。
+
+## 路径约定
+
+本 skill 中跨 skill 路径均相对于 SKILL.md 所在目录（skill base directory）。执行时以 base directory 拼接绝对路径。**不要硬编码 `~/.claude/skills/`** — skill 可能安装在项目级 `.claude/skills/` 或全局 `~/.claude/skills/` 下。
 
 ## 支持的配置格式
 
@@ -60,11 +65,11 @@ AskUserQuestion:
 - 有 `format: template` 或有 `team_type` + `roles` → template 格式，跳到「模板加载流程」
 - 都不匹配 → 报错提示格式不正确
 
-### 步骤 2.5: 检测团队冲突
+### 步骤 3: 检测团队冲突
 
 扫描 `~/.claude/teams/` 目录，检查是否存在与即将创建的团队同名的目录。
 
-如果存在同名团队目录，在步骤 3 的确认摘要中增加警告：
+如果存在同名团队目录，在步骤 5 的确认摘要中增加警告：
 
 ```
 ⚠ 检测到同名团队「{project_name}」正在运行。
@@ -74,7 +79,7 @@ AskUserQuestion:
 
 这只是警告，不阻止加载。
 
-### 步骤 2.8: 选择加载模式（仅 snapshot 格式）
+### 步骤 4: 选择加载模式（仅 snapshot 格式）
 
 如果是 snapshot 格式，询问加载模式：
 
@@ -96,7 +101,7 @@ AskUserQuestion:
 
 如果是 template 格式，跳过此步骤（template 本身就是结构加载）。
 
-### 步骤 3: 确认并允许覆盖
+### 步骤 5: 确认并允许覆盖
 
 展示配置摘要（两种格式通用）：
 
@@ -390,7 +395,7 @@ SendMessage:
 
 ## 仅结构加载的转换规则
 
-当用户在步骤 2.8 选择「仅结构加载」时，将 snapshot 转换为 template 方式处理：
+当用户在步骤 4 选择「仅结构加载」时，将 snapshot 转换为 template 方式处理：
 
 ### 前置条件
 

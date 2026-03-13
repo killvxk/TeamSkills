@@ -174,6 +174,7 @@
 | 记录员 | recorder.md | 过程记录与文档维护（可选） |
 
 ### 查看团队状态
+> 注：`~/.claude/teams/` 是 Claude Code 管理运行中团队的内部目录，此路径由平台固定，与 skill 安装路径无关。
 1. 读取团队配置：`Read ~/.claude/teams/{team_name}/config.json`
 2. 查看任务列表：使用 TaskList 工具
 3. 了解每个成员的当前议题状态

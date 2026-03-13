@@ -2,7 +2,8 @@
 name: team-save
 description: |
   This skill should be used when the user asks to "保存团队", "team save",
-  "保存团队配置", "导出团队". 从运行中的团队读取配置并保存为快照文件
+  "保存团队配置", "导出团队", "save team", "export team",
+  "save team config". 从运行中的团队读取配置并保存为快照文件
   到 .team-profiles/ 目录，供 /team-load 复用。
 argument-hint: "[团队名称] [保存名称]"
 disable-model-invocation: true
@@ -77,7 +78,7 @@ AskUserQuestion:
 - 跳过 `agentType: "team-lead"` 的成员（team-lead 由系统自动创建，不需要保存 prompt）
 - 只保存有 `prompt` 字段的成员
 
-### 步骤 2.5: 采集任务进度
+### 步骤 3: 采集任务进度
 
 使用 TaskList 工具获取当前团队的所有任务。对每个任务使用 TaskGet 获取完整信息。
 
@@ -92,7 +93,7 @@ AskUserQuestion:
 
 **注意**：如果 TaskList 返回为空（没有任务），则 `tasks` 段为空数组，这是正常的。
 
-### 步骤 3: 确定保存名称
+### 步骤 4: 确定保存名称
 
 如果 `$ARGUMENTS` 的第二个参数非空，使用它作为保存名称。
 否则默认使用团队名称。
@@ -109,7 +110,7 @@ AskUserQuestion:
   multiSelect: false
 ```
 
-### 步骤 4: 展示摘要并确认
+### 步骤 5: 展示摘要并确认
 
 ```
 团队快照摘要
@@ -145,7 +146,7 @@ AskUserQuestion:
   multiSelect: false
 ```
 
-### 步骤 5: 写入配置文件
+### 步骤 6: 写入配置文件
 
 **确保目录存在**：
 
@@ -222,7 +223,7 @@ tasks:
   # ... 所有任务（包括已完成的，用于记录完整历史）
 ```
 
-### 步骤 6: 输出结果
+### 步骤 7: 输出结果
 
 ```
 团队快照已保存到: .team-profiles/{save_name}.yaml
