@@ -195,7 +195,7 @@
 当需要增加团队成员时（如需更多开发人员或进入新阶段需要新角色）：
 
 1. **确定角色**: 根据需要确定角色类型和数量
-2. **读取角色定义**: `Read ~/.claude/skills/team-init/references/dev/roles/{role_id}.md`
+2. **读取角色定义**: `Read {work_dir}/.teams/{project_name}/roles/{role_id}.md`
 3. **创建成员**:
    ```
    Agent:

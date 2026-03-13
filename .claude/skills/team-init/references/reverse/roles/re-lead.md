@@ -152,7 +152,7 @@
 当需要增加团队成员时（如发现网络通信需激活 protocol-analyst）：
 
 1. **确定角色**：根据目标特点确定需要激活的角色
-2. **读取角色定义**：`Read ~/.claude/skills/team-init/references/reverse/roles/{role_id}.md`
+2. **读取角色定义**：`Read {work_dir}/.teams/{project_name}/roles/{role_id}.md`
 3. **创建成员**：
    ```
    Agent:

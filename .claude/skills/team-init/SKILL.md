@@ -14,6 +14,10 @@ version: 0.1.0
 
 通过交互式问答，收集项目信息并创建由 Lead 领导的 Agent 工程团队。
 
+## 路径约定
+
+本 skill 中 `references/` 和 `scripts/` 路径均相对于 SKILL.md 所在目录（skill base directory）。执行时以 base directory 拼接绝对路径。**不要硬编码 `~/.claude/skills/`** — skill 可能安装在项目级 `.claude/skills/` 或全局 `~/.claude/skills/` 下。
+
 ## 支持的团队类型
 
 | # | 类型 | 领导角色 | 目录 | 适用场景 |
@@ -239,11 +243,11 @@ AskUserQuestion:
 
 将角色定义文件复制到项目工作目录的 `.teams/{project_name}/`，供用户在团队启动前审阅和修改。
 
-**来源路径**:
-- 角色定义: `~/.claude/skills/team-init/references/{type_dir}/roles/{role_code}.md`
-- 工作流: `~/.claude/skills/team-init/references/{type_dir}/workflow.md`
+**来源路径**（相对于 skill base directory）:
+- 角色定义: `references/{type_dir}/roles/{role_code}.md`
+- 工作流: `references/{type_dir}/workflow.md`
 
-> **注意**: 以上路径以 skill 实际安装目录为准。使用 Read 工具时需要确认 skill 所在的实际路径。
+使用 Read 工具时，将以上相对路径拼接到 skill base directory 构建绝对路径。
 
 **写入目标**:
 
@@ -487,9 +491,8 @@ SendMessage:
     - 团队成员: {member_list}
 
     请开始第一阶段工作。
-    团队配置: ~/.claude/teams/{project_name}/config.json
-    工作流: ~/.claude/skills/team-init/references/{type_dir}/workflow.md
-    角色定义: ~/.claude/skills/team-init/references/{type_dir}/roles/
+    工作流: {work_dir}/.teams/{project_name}/workflow.md
+    角色定义: {work_dir}/.teams/{project_name}/roles/
   summary: "团队已创建，启动项目"
 ```
 
@@ -519,3 +522,11 @@ SendMessage:
 - **`references/{type_dir}/workflow.md`** - 各团队类型的工作流定义
 - **`references/shared/handoff-protocol.md`** - 跨角色交接协议
 - **`references/shared/role-template.md`** - 角色定义标准模板
+
+## 脚本工具
+
+- **`scripts/lint-roles.sh`** - 角色定义文件格式校验（5板块结构检查）
+  - `bash <skill_base>/scripts/lint-roles.sh` — 检查所有核心角色
+  - `bash <skill_base>/scripts/lint-roles.sh dev` — 检查 dev 团队
+  - `bash <skill_base>/scripts/lint-roles.sh --extensions` — 检查扩展角色
+  - 脚本使用 `${BASH_SOURCE[0]}` 自动定位，任何安装位置均可工作

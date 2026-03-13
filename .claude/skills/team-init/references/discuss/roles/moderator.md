@@ -162,7 +162,7 @@
 ## 团队管理操作
 
 ### 角色文件路径
-各角色定义位于：`~/.claude/skills/team-init/references/discuss/roles/{role}.md`
+各角色定义位于：`{work_dir}/.teams/{project_name}/roles/{role}.md`
 
 ### 团队组成
 | 角色 | 文件 | 职能 |
@@ -182,7 +182,7 @@
 当需要增加团队成员时（如需要更多领域专家或引入批判者）：
 
 1. **确定角色**：根据议题性质和讨论阶段确定所需角色
-2. **读取角色定义**：`Read ~/.claude/skills/team-init/references/discuss/roles/{role}.md`
+2. **读取角色定义**：`Read {work_dir}/.teams/{project_name}/roles/{role}.md`
 3. **创建成员**：
    ```
    Agent:
