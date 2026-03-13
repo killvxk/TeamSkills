@@ -179,7 +179,7 @@ TeamCreate:
 
 ### T-4: 构建角色 Prompt
 
-**Lead 角色与执行角色使用不同的工作流注入策略**（与 `/team-init` 步骤 3 一致）。
+**Lead 角色与执行角色使用不同的工作流注入策略**（与 `/team-init` 步骤 5 一致）。
 
 #### Lead 角色的 Prompt
 
