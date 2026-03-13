@@ -74,12 +74,34 @@ AskUserQuestion:
 
 这只是警告，不阻止加载。
 
+### 步骤 2.8: 选择加载模式（仅 snapshot 格式）
+
+如果是 snapshot 格式，询问加载模式：
+
+```
+AskUserQuestion:
+  question: "选择加载模式"
+  header: "加载模式"
+  options:
+    - label: "完整加载"
+      description: "恢复团队结构、角色设定和任务进度"
+    - label: "仅结构加载"
+      description: "只恢复团队结构和成员组成，使用原始角色定义，不加载任务进度（全新启动）"
+  multiSelect: false
+```
+
+**完整加载**: 使用 snapshot 中保存的 prompt 和任务，走「快照加载流程」（当前行为）。
+
+**仅结构加载**: 从 snapshot 中提取成员组成（角色名和数量），但使用 references/ 中的**原始角色定义**重建 prompt，不创建任务。等效于将 snapshot 当作 template 使用。走「模板加载流程」，具体处理见下方「仅结构加载的转换规则」。
+
+如果是 template 格式，跳过此步骤（template 本身就是结构加载）。
+
 ### 步骤 3: 确认并允许覆盖
 
 展示配置摘要（两种格式通用）：
 
 ```
-团队配置: {name} [{format}]
+团队配置: {name} [{format}] {如果是仅结构加载则追加 "(仅结构)"}
 --------------------
 描述: {description}
 工作目录: {work_dir 或 cwd}
@@ -89,8 +111,12 @@ AskUserQuestion:
 
 预计创建 {N} 个 Agent
 
-任务进度（仅 snapshot 且有 tasks 时显示）:
+{仅完整加载显示:}
+任务进度:
   {completed}✓ 已完成  {in_progress}⚡ 进行中  {pending}○ 待处理
+
+{仅结构加载显示:}
+加载模式: 仅结构 — 使用原始角色定义，不加载任务进度
 --------------------
 ```
 
@@ -147,6 +173,10 @@ TeamCreate:
 
 ### T-4: 构建角色 Prompt
 
+**Lead 角色与执行角色使用不同的工作流注入策略**（与 `/team-init` 步骤 3 一致）。
+
+#### Lead 角色的 Prompt
+
 ```
 你是「{project_name}」项目的{role_name}。
 
@@ -163,8 +193,36 @@ TeamCreate:
 </team_members>
 
 <workflow>
-{workflow.md 的内容}
+{workflow.md 的完整内容}
 </workflow>
+
+<your_role>
+{对应角色 .md 文件的完整内容}
+</your_role>
+```
+
+#### 执行角色的 Prompt
+
+仅注入 workflow.md 中的**阶段总览表格**，不含各阶段详细流程。
+
+```
+你是「{project_name}」项目的{role_name}。
+
+<project_context>
+项目名称: {project_name}
+团队类型: {team_type_name}
+项目描述: {description}
+技术栈: {tech_stack}
+工作目录: {work_dir}
+</project_context>
+
+<team_members>
+{列出所有成员的名称和角色}
+</team_members>
+
+<workflow_overview>
+{仅 workflow.md 中「阶段总览」表格}
+</workflow_overview>
 
 <your_role>
 {对应角色 .md 文件的完整内容}
@@ -327,3 +385,49 @@ SendMessage:
     请查看 TaskList 了解当前进度，从未完成的任务继续工作。
   summary: "团队已从快照加载，启动项目"
 ```
+
+---
+
+## 仅结构加载的转换规则
+
+当用户在步骤 2.8 选择「仅结构加载」时，将 snapshot 转换为 template 方式处理：
+
+### 前置条件
+
+snapshot 必须包含 `team_type` 字段。如果 `team_type` 为空，无法确定角色定义文件路径，提示用户：
+
+```
+此快照未记录团队类型（team_type），无法使用仅结构模式。
+请使用「完整加载」，或从 template 格式配置加载。
+```
+
+回退到完整加载流程。
+
+### 转换步骤
+
+1. **提取成员组成**: 从 `members[]` 中提取每个成员的 `name`，根据命名规则推断角色代号：
+   - 无序号后缀: name 即为 role_code（如 `pm` → role `pm`）
+   - 有序号后缀: 去掉 `-{N}` 获取 role_code（如 `developer-2` → role `developer`），统计同一 role_code 的数量作为 count
+   - 识别 Lead: 按 team_type 的 lead 映射表匹配
+
+2. **构造虚拟 template**: 用提取的信息构造等效于 template 格式的配置：
+   ```yaml
+   team_type: "{从 snapshot 提取}"
+   team_type_name: "{从 snapshot 提取}"
+   description: "{从 snapshot 提取}"
+   tech_stack: "{从 snapshot 成员 prompt 的 <project_context> 中提取，如无则为空}"
+   work_dir: "{用户指定或从 snapshot 提取}"
+   roles:
+     - role: "{role_code}"
+       count: {N}
+       is_lead: true/false
+   ```
+
+3. **走模板加载流程**: 使用虚拟 template 执行 T-1 到 T-7，从 references/ 读取原始角色定义，构建全新的 prompt，创建全新的任务骨架。
+
+### 效果
+
+- 复用 snapshot 记录的团队组成（谁参与、多少人）
+- 使用最新的原始角色定义（而非 snapshot 时冻结的 prompt）
+- 不恢复任何任务进度，全新启动
+- 适用场景：想用相同的团队配置做一个新项目，或角色定义已更新需要使用最新版本

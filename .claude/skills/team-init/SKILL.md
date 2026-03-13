@@ -235,7 +235,104 @@ AskUserQuestion:
 
 用户确认后，执行以下步骤。
 
-### 步骤 1: 创建团队
+### 步骤 1: 准备角色定义（写入 .teams/）
+
+将角色定义文件复制到项目工作目录的 `.teams/{project_name}/`，供用户在团队启动前审阅和修改。
+
+**来源路径**:
+- 角色定义: `~/.claude/skills/team-init/references/{type_dir}/roles/{role_code}.md`
+- 工作流: `~/.claude/skills/team-init/references/{type_dir}/workflow.md`
+
+> **注意**: 以上路径以 skill 实际安装目录为准。使用 Read 工具时需要确认 skill 所在的实际路径。
+
+**写入目标**:
+
+```
+{work_dir}/.teams/{project_name}/
+├── team.yaml           # 团队配置摘要
+├── workflow.md          # 工作流定义（从 references 复制）
+└── roles/
+    ├── {lead_role}.md   # Lead 角色定义
+    ├── {role_1}.md      # 执行角色定义
+    └── ...
+```
+
+**操作步骤**:
+
+1. 使用 Bash 创建目录: `mkdir -p "{work_dir}/.teams/{project_name}/roles"`
+2. 使用 Read 读取每个角色定义文件和 workflow.md
+3. 使用 Write 将每个角色定义写入 `.teams/{project_name}/roles/{role_code}.md`
+4. 使用 Write 将 workflow.md 写入 `.teams/{project_name}/workflow.md`
+5. 使用 Write 创建 `.teams/{project_name}/team.yaml`:
+
+```yaml
+# 团队配置 - 由 /team-init 准备
+# 修改 roles/ 下的 .md 文件可自定义角色行为
+# 确认后使用「开始创建」启动团队
+
+team_type: "{type_dir}"
+team_type_name: "{team_type_name}"
+project_name: "{project_name}"
+description: "{description}"
+tech_stack: "{tech_stack}"
+work_dir: "{work_dir}"
+
+roles:
+  - role: "{lead_role_code}"
+    count: 1
+    is_lead: true
+  - role: "{role_code}"
+    count: {N}
+  # ...
+```
+
+### 步骤 2: 用户审阅角色定义
+
+输出角色文件路径并提示用户审阅：
+
+```
+角色定义已准备就绪
+--------------------
+目录: {work_dir}/.teams/{project_name}/
+
+文件列表:
+  workflow.md          — 工作流定义
+  roles/{lead_role}.md — {lead_role_name}（Lead）
+  roles/{role_1}.md    — {role_1_name}
+  roles/{role_2}.md    — {role_2_name}
+  ...
+
+您可以在编辑器中打开并修改这些文件，自定义角色行为。
+修改完成后选择「开始创建」启动团队。
+--------------------
+```
+
+```
+AskUserQuestion:
+  question: "准备好启动团队了吗？"
+  header: "审阅角色定义"
+  options:
+    - label: "开始创建"
+      description: "使用当前角色定义（含您的修改）创建团队"
+    - label: "打开目录"
+      description: "显示文件完整路径，方便在编辑器中打开"
+    - label: "取消"
+      description: "放弃创建，保留 .teams/ 目录供后续使用"
+  multiSelect: false
+```
+
+如果用户选择「打开目录」，输出每个文件的完整绝对路径，然后再次询问是否开始创建。
+如果用户选择「取消」，输出提示后结束：
+
+```
+团队创建已取消。角色定义保留在:
+  {work_dir}/.teams/{project_name}/
+
+后续可手动编辑后，使用 /team-init {project_name} 重新启动
+（检测到 .teams/ 目录时将直接使用其中的角色定义）。
+```
+
+### 步骤 3: 创建团队
 
 ```
 TeamCreate:
@@ -243,19 +340,25 @@ TeamCreate:
   description: "{team_type_name} - {description}"
 ```
 
-### 步骤 2: 读取角色定义和工作流
+### 步骤 4: 读取角色定义和工作流
 
-角色定义路径: `~/.claude/skills/team-init/references/{type_dir}/roles/{role_code}.md`
-工作流路径: `~/.claude/skills/team-init/references/{type_dir}/workflow.md`
+**从 `.teams/` 目录读取**（而非直接从 references/ 读取），这样包含了用户的修改。
 
-> **注意**: 以上路径以 skill 实际安装目录为准。使用 Read 工具时需要确认 skill 所在的实际路径。
+角色定义路径: `{work_dir}/.teams/{project_name}/roles/{role_code}.md`
+工作流路径: `{work_dir}/.teams/{project_name}/workflow.md`
 
 对每个选中的角色，使用 Read 工具读取其角色定义文件。
-同时读取该类型的 workflow.md。
+同时读取 workflow.md。
 
-### 步骤 3: 构建角色 Prompt
+### 步骤 5: 构建角色 Prompt
 
-为每个成员组合 prompt：
+为每个成员组合 prompt。**Lead 角色与执行角色使用不同的工作流注入策略**，以控制 prompt 长度。
+
+> **重要**: 角色定义从 `.teams/{project_name}/roles/` 读取（步骤 4），包含用户可能做的修改。
+
+#### Lead 角色的 Prompt
+
+Lead 角色负责管理整个工作流，因此注入**完整的 workflow.md 内容**。
 
 ```
 你是「{project_name}」项目的{role_name}。
@@ -273,7 +376,7 @@ TeamCreate:
 </team_members>
 
 <workflow>
-{workflow.md 的内容}
+{workflow.md 的完整内容}
 </workflow>
 
 <your_role>
@@ -281,15 +384,43 @@ TeamCreate:
 </your_role>
 ```
 
-### 步骤 4: 创建初始任务
+#### 执行角色的 Prompt
+
+执行角色无需完整工作流，仅注入 workflow.md 中的**阶段总览表格**（即 `## 阶段总览` 下的 Markdown 表格，通常 5-10 行），不包含各阶段的详细流程描述。
+
+```
+你是「{project_name}」项目的{role_name}。
+
+<project_context>
+项目名称: {project_name}
+团队类型: {team_type_name}
+项目描述: {description}
+技术栈: {tech_stack}
+工作目录: {work_dir}
+</project_context>
+
+<team_members>
+{列出所有成员的名称和角色}
+</team_members>
+
+<workflow_overview>
+{仅 workflow.md 中「阶段总览」表格，不含各 Phase 详细流程}
+</workflow_overview>
+
+<your_role>
+{对应角色 .md 文件的完整内容}
+</your_role>
+```
+
+### 步骤 6: 创建初始任务
 
 使用 TaskCreate 根据 workflow.md 的阶段创建任务骨架。
 设置阶段间的 blockedBy 依赖关系。
 将第一个任务分配给 Lead 角色。
 
-### 步骤 5: 派生团队成员
+### 步骤 7: 派生团队成员
 
-**Lead 角色必须第一个创建。**
+**Lead 角色必须第一个创建。** 注意：多实例角色（如 developer x2）的每个实例使用相同的角色定义文件。
 
 ```
 Agent:
@@ -307,7 +438,7 @@ Agent:
 
 创建顺序：先创建 Lead，再并行创建其他角色。
 
-### 步骤 6: 保存团队配置到项目目录
+### 步骤 8: 保存团队配置到项目目录
 
 将团队配置保存到项目工作目录下的 `.team-profiles/{project_name}.yaml`，以便后续通过 `/team-load` 复用。
 
@@ -341,7 +472,7 @@ roles:
 后续可使用 /team-load {project_name} 直接加载此团队配置。
 ```
 
-### 步骤 7: 通知 Lead 启动
+### 步骤 9: 通知 Lead 启动
 
 ```
 SendMessage:
@@ -362,8 +493,29 @@ SendMessage:
   summary: "团队已创建，启动项目"
 ```
 
+## 复用已有 .teams/ 目录
+
+如果执行 `/team-init` 时检测到 `{work_dir}/.teams/{project_name}/` 已存在（例如上次取消后保留的），跳过步骤 1 的文件写入，直接进入步骤 2（用户审阅）。
+
+提示用户：
+
+```
+检测到已有角色定义: .teams/{project_name}/
+将使用其中的角色文件创建团队（包含您之前的修改）。
+
+如需重新生成，请先删除 .teams/{project_name}/ 目录。
+```
+
+## 注意事项
+
+- `.teams/` 目录应加入 `.gitignore`（属于本地自定义，不入版本控制）
+- 多实例角色（如 developer x3）共用同一个角色定义 MD，修改一次影响所有实例
+- 用户修改角色 MD 后，修改内容会被原样注入到 agent 的 `<your_role>` 段
+
 ## 参考资源
 
 - **`references/role-catalog.md`** - 各团队类型的完整角色列表
-- **`references/{type_dir}/roles/{role}.md`** - 各角色详细定义
+- **`references/{type_dir}/roles/{role}.md`** - 各角色详细定义（原始版本）
 - **`references/{type_dir}/workflow.md`** - 各团队类型的工作流定义
+- **`references/shared/handoff-protocol.md`** - 跨角色交接协议
+- **`references/shared/role-template.md`** - 角色定义标准模板
