@@ -69,6 +69,8 @@ cp -r /tmp/TeamSkills/.claude/skills/* ~/.claude/skills/
 
 扩展角色使用 `ext-{department}-{role_code}` 命名规则，在 prompt 中标注为「扩展角色 — {department}」。
 
+> 扩展角色库基于 [agency-agents-zh](https://github.com/jnMetaCode/agency-agents-zh) 转换而来，已适配 TeamSkill 5 板块结构。
+
 ## 核心特性
 
 ### .teams/ 暂存机制
