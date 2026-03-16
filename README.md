@@ -16,12 +16,17 @@
 
 ## Quick Start
 
-**Method 1: Claude Code Plugin (推荐)**
+**Method 1: npx skills**
 ```
-/install-plugin https://github.com/killvxk/TeamSkills
+npx skills add killvxk/TeamSkills
 ```
 
-**Method 2: 手动克隆**
+**Method 2: Claude Code plugin**
+```
+/plugin marketplace add killvxk/TeamSkills
+```
+
+**Method 3: Manual clone**
 ```bash
 git clone https://github.com/killvxk/TeamSkills.git
 ```
