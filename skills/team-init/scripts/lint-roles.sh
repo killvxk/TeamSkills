@@ -3,10 +3,10 @@
 # 检查 references/ 下所有角色文件是否符合 5 板块结构
 #
 # 用法（从项目根目录或任意位置运行均可）:
-#   bash .claude/skills/team-init/scripts/lint-roles.sh              # 检查所有核心角色
-#   bash .claude/skills/team-init/scripts/lint-roles.sh dev          # 仅检查 dev 团队
-#   bash .claude/skills/team-init/scripts/lint-roles.sh dev/roles/pm.md  # 检查单个文件
-#   bash .claude/skills/team-init/scripts/lint-roles.sh --extensions # 检查扩展角色
+#   bash skills/team-init/scripts/lint-roles.sh              # 检查所有核心角色
+#   bash skills/team-init/scripts/lint-roles.sh dev          # 仅检查 dev 团队
+#   bash skills/team-init/scripts/lint-roles.sh dev/roles/pm.md  # 检查单个文件
+#   bash skills/team-init/scripts/lint-roles.sh --extensions # 检查扩展角色
 
 set -euo pipefail
 
@@ -237,7 +237,7 @@ main() {
         done < <(find "$ROLES_ROOT/extensions/$target" -name "*.md" -not -name "*catalog*" 2>/dev/null | sort)
     else
         echo -e "${RED}找不到目标: $target${NC}"
-        echo "用法: bash .claude/skills/team-init/scripts/lint-roles.sh [团队目录|文件路径|--extensions]"
+        echo "用法: bash skills/team-init/scripts/lint-roles.sh [团队目录|文件路径|--extensions]"
         exit 1
     fi
 

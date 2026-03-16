@@ -7,7 +7,7 @@ description: |
   运行中团队请用 /team-stop）。
 argument-hint: "[配置名称]"
 disable-model-invocation: true
-version: 0.1.0
+version: 0.3.0
 ---
 
 # 团队配置删除

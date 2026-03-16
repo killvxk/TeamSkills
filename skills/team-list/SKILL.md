@@ -8,7 +8,7 @@ description: |
   此技能查看磁盘上的持久化配置。
 argument-hint: ""
 disable-model-invocation: true
-version: 0.1.0
+version: 0.3.0
 ---
 
 # 团队配置列表

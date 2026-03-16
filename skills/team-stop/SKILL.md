@@ -7,7 +7,7 @@ description: |
   向所有成员发送关闭请求并清理团队资源。
 argument-hint: "[团队名称]"
 disable-model-invocation: true
-version: 0.1.0
+version: 0.3.0
 ---
 
 # 团队终止

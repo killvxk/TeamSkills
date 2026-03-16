@@ -8,7 +8,7 @@ description: |
   跳过交互问答直接创建团队。支持 template 和 snapshot 两种格式。
 argument-hint: "[配置名称]"
 disable-model-invocation: true
-version: 0.1.0
+version: 0.3.0
 ---
 
 # 团队配置加载

@@ -7,7 +7,7 @@ description: |
   到 .team-profiles/ 目录，供 /team-load 复用。
 argument-hint: "[团队名称] [保存名称]"
 disable-model-invocation: true
-version: 0.1.0
+version: 0.3.0
 ---
 
 # 团队配置保存

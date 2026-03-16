@@ -7,7 +7,7 @@ description: |
   包括成员列表、任务进度和活跃情况。与 /team-list（查看磁盘配置）互补。
 argument-hint: "[团队名称]"
 disable-model-invocation: true
-version: 0.1.0
+version: 0.3.0
 ---
 
 # 运行中团队状态查询
