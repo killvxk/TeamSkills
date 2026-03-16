@@ -5,7 +5,7 @@ description: |
   "终止团队", "关闭团队", "解散团队", "stop team", "terminate team",
   "shutdown team", "disband team". 主动终止运行中的团队，
   向所有成员发送关闭请求并清理团队资源。
-version: 0.3.0
+version: 0.3.1
 ---
 
 # 团队终止

@@ -5,7 +5,7 @@ description: |
   "team init", "create team", "build team", "组建团队", "启动项目团队",
   "添加扩展角色", "add extension roles". 通过交互式问答收集项目信息，
   创建包含专业角色的 Agent 工程团队。支持 8 种团队类型和 146 个扩展专业角色（跨 12 领域）。
-version: 0.3.0
+version: 0.3.1
 ---
 
 # 工程团队初始化

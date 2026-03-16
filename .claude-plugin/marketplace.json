@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "基于 Claude Code Agent Team 的工程团队管理插件。51 个核心角色 + 146 个扩展专业角色，覆盖 8 种团队类型和 12 个扩展领域，通过 7 个 slash command 实现团队的全生命周期管理。",
-    "version": "0.3.0"
+    "version": "0.3.1"
   },
   "plugins": [
     {
       "name": "team-skills",
       "source": "./",
       "description": "Agent 工程团队全生命周期管理：创建、保存、加载、查看、监控和终止。51 个核心角色 + 146 个扩展角色，8 种团队类型，12 个扩展领域。",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "author": {
         "name": "killvxk"
       },

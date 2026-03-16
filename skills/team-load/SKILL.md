@@ -6,7 +6,7 @@ description: |
   "load team config", "载入团队", "重新加载团队", "reload team".
   从 .team-profiles/ 读取 YAML 配置，
   跳过交互问答直接创建团队。支持 template 和 snapshot 两种格式。
-version: 0.3.0
+version: 0.3.1
 ---
 
 # 团队配置加载

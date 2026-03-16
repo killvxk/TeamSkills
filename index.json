@@ -1,5 +1,5 @@
 {
-  "version": "0.3.0",
+  "version": "0.3.1",
   "generated_at": "2026-03-16T00:00:00Z",
   "repository": "https://github.com/killvxk/TeamSkills",
   "total_skills": 7,
@@ -12,49 +12,49 @@
       "name": "team-init",
       "path": "skills/team-init/SKILL.md",
       "description": "交互式创建 Agent 工程团队，支持 8 种团队类型和 146 个扩展角色",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "tags": ["team", "init", "create", "roles", "extensions"]
     },
     {
       "name": "team-load",
       "path": "skills/team-load/SKILL.md",
       "description": "从 .team-profiles/ 读取 YAML 配置，跳过问答直接创建团队",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "tags": ["team", "load", "restore", "config"]
     },
     {
       "name": "team-save",
       "path": "skills/team-save/SKILL.md",
       "description": "将运行中团队的完整状态保存为 snapshot 配置",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "tags": ["team", "save", "snapshot", "backup"]
     },
     {
       "name": "team-list",
       "path": "skills/team-list/SKILL.md",
       "description": "列出 .team-profiles/ 中所有已保存的团队配置",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "tags": ["team", "list", "profiles"]
     },
     {
       "name": "team-delete",
       "path": "skills/team-delete/SKILL.md",
       "description": "删除 .team-profiles/ 中已保存的团队配置",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "tags": ["team", "delete", "remove"]
     },
     {
       "name": "team-status",
       "path": "skills/team-status/SKILL.md",
       "description": "查看运行中团队的成员状态、任务进度和活动情况",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "tags": ["team", "status", "monitor"]
     },
     {
       "name": "team-stop",
       "path": "skills/team-stop/SKILL.md",
       "description": "终止运行中的团队并清理相关资源",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "tags": ["team", "stop", "terminate", "cleanup"]
     }
   ],

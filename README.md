@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat" alt="License"></a>
-  <img src="https://img.shields.io/badge/version-0.3.0-brightgreen?style=flat" alt="Version">
+  <img src="https://img.shields.io/badge/version-0.3.1-brightgreen?style=flat" alt="Version">
   <img src="https://img.shields.io/badge/skills-7-orange?style=flat" alt="Skills">
   <img src="https://img.shields.io/badge/core_roles-51-blue?style=flat" alt="Core Roles">
   <img src="https://img.shields.io/badge/extension_roles-146-purple?style=flat" alt="Extension Roles">
