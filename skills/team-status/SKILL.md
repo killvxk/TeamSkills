@@ -5,8 +5,6 @@ description: |
   "check team progress", "who is running", "团队运行情况", "团队进度",
   "谁在运行", "active teams". 查询当前运行中的团队的实时状态，
   包括成员列表、任务进度和活跃情况。与 /team-list（查看磁盘配置）互补。
-argument-hint: "[团队名称]"
-disable-model-invocation: true
 version: 0.3.0
 ---
 

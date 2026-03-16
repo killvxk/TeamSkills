@@ -5,8 +5,6 @@ description: |
   "保存团队配置", "导出团队", "save team", "export team",
   "save team config". 从运行中的团队读取配置并保存为快照文件
   到 .team-profiles/ 目录，供 /team-load 复用。
-argument-hint: "[团队名称] [保存名称]"
-disable-model-invocation: true
 version: 0.3.0
 ---
 
