@@ -4,8 +4,8 @@ description: |
   This skill should be used when the user asks to "初始化团队", "创建开发团队",
   "team init", "create team", "build team", "组建团队", "启动项目团队",
   "添加扩展角色", "add extension roles". 通过交互式问答收集项目信息，
-  创建包含专业角色的 Agent 工程团队。支持 8 种团队类型和 146 个扩展专业角色（跨 12 领域）。
-version: 0.3.1
+  创建包含专业角色的 Agent 工程团队。支持 8 种团队类型和 153 个扩展专业角色（跨 12 领域）。
+version: 0.4.0
 ---
 
 # 工程团队初始化
@@ -171,7 +171,7 @@ AskUserQuestion:
 
 ```
 AskUserQuestion:
-  question: "是否从扩展角色库添加专业角色？（146 个跨 12 领域的专家角色）"
+  question: "是否从扩展角色库添加专业角色？（153 个跨 12 领域的专家角色）"
   header: "扩展角色"
   options:
     - label: "跳过"
@@ -204,7 +204,7 @@ AskUserQuestion:
     - label: "paid-media"
       description: "7个: PPC、社交广告、程序化采买..."
     - label: "product"
-      description: "4个: Sprint排序、趋势研究、反馈分析..."
+      description: "11个: 产品发现、战略、执行、市场研究、数据分析、GTM、营销增长..."
     - label: "project-management"
       description: "6个: 制片人、项目协调、实验追踪..."
     - label: "sales"
@@ -641,7 +641,7 @@ SendMessage:
 - **`references/{type_dir}/workflow.md`** - 各团队类型的工作流定义
 - **`references/shared/handoff-protocol.md`** - 跨角色交接协议
 - **`references/shared/role-template.md`** - 角色定义标准模板
-- **`references/extensions/extension-catalog.md`** - 扩展角色索引（146 个跨 12 领域）
+- **`references/extensions/extension-catalog.md`** - 扩展角色索引（153 个跨 12 领域）
 - **`references/extensions/{department}/{role_code}.md`** - 扩展角色定义
 
 ## 脚本工具

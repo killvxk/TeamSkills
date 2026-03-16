@@ -6,3 +6,6 @@ docs/
 
 # CodeMap 图谱
 .codemap/
+
+# 临时示例/翻译工作目录
+examples/

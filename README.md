@@ -4,15 +4,15 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat" alt="License"></a>
-  <img src="https://img.shields.io/badge/version-0.3.1-brightgreen?style=flat" alt="Version">
+  <img src="https://img.shields.io/badge/version-0.4.0-brightgreen?style=flat" alt="Version">
   <img src="https://img.shields.io/badge/skills-7-orange?style=flat" alt="Skills">
   <img src="https://img.shields.io/badge/core_roles-51-blue?style=flat" alt="Core Roles">
-  <img src="https://img.shields.io/badge/extension_roles-146-purple?style=flat" alt="Extension Roles">
+  <img src="https://img.shields.io/badge/extension_roles-153-purple?style=flat" alt="Extension Roles">
 </p>
 
 ---
 
-基于 Claude Code Agent Team 能力的工程团队管理插件。通过 7 个 slash command 实现团队的全生命周期管理：创建、保存、加载、查看、监控和终止。内置 51 个核心角色 + 146 个扩展专业角色，覆盖 8 种团队类型和 12 个扩展领域。
+基于 Claude Code Agent Team 能力的工程团队管理插件。通过 7 个 slash command 实现团队的全生命周期管理：创建、保存、加载、查看、监控和终止。内置 51 个核心角色 + 153 个扩展专业角色，覆盖 8 种团队类型和 12 个扩展领域。
 
 ## Quick Start
 
@@ -60,7 +60,7 @@ git clone https://github.com/killvxk/TeamSkills.git
 
 共 51 个核心角色定义，每个角色均采用 5 板块结构（`<role>` `<rules>` `<deliverables>` `<collaboration>` `<metrics>`），Lead 角色额外包含团队管理板块。
 
-### 扩展角色库（146 个）
+### 扩展角色库（153 个）
 
 除核心角色外，可通过 `/team-init` 的交互式流程按需添加扩展专业角色：
 
@@ -71,7 +71,7 @@ git clone https://github.com/killvxk/TeamSkills.git
 | marketing | 29 | 小红书、抖音、微信、B站、SEO |
 | game-development | 19 | Unity、Unreal、Godot、Roblox |
 | paid-media | 7 | PPC、社交广告、程序化采买 |
-| product | 4 | Sprint排序、趋势研究、反馈分析 |
+| product | 11 | 产品发现、战略、执行、市场研究、数据分析、GTM、营销增长 |
 | project-management | 6 | 制片人、项目协调、实验追踪 |
 | sales | 8 | 赢单策略、售前工程、Pipeline分析 |
 | support | 8 | 数据分析、法务合规、财务、招聘 |
@@ -81,7 +81,7 @@ git clone https://github.com/killvxk/TeamSkills.git
 
 扩展角色使用 `ext-{department}-{role_code}` 命名规则，在 prompt 中标注为「扩展角色 — {department}」。
 
-> 扩展角色库基于 [agency-agents-zh](https://github.com/jnMetaCode/agency-agents-zh) 转换而来，已适配 TeamSkill 5 板块结构。
+> 扩展角色库基于 [agency-agents-zh](https://github.com/jnMetaCode/agency-agents-zh) 和 [pm-skills](https://github.com/phuryn/pm-skills) 转换而来，已适配 TeamSkill 5 板块结构。
 
 ## 核心特性
 
@@ -167,7 +167,7 @@ skills/
 │       ├── ctf/                   # CTF 比赛 (7 角色)
 │       ├── ops/                   # 运维 (7 角色)
 │       ├── discuss/               # 讨论/研讨 (5 角色)
-│       └── extensions/            # 扩展角色库 (146 角色, 12 领域)
+│       └── extensions/            # 扩展角色库 (153 角色, 12 领域)
 │           ├── extension-catalog.md
 │           ├── engineering/       # 22 角色
 │           ├── design/            # 8 角色

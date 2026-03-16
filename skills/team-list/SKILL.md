@@ -6,7 +6,7 @@ description: |
   "what teams are saved". 扫描 .team-profiles/ 目录，
   展示所有已保存配置的摘要信息。与 /team-status（查看运行中团队）不同，
   此技能查看磁盘上的持久化配置。
-version: 0.3.1
+version: 0.4.0
 ---
 
 # 团队配置列表

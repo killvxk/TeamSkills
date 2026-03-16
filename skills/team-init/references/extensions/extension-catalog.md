@@ -1,6 +1,6 @@
 # 扩展角色索引 (Extension Catalog)
 
-> 来源: agency-agents-zh | 角色总数: 146 | 部门: 12
+> 来源: agency-agents-zh + pm-skills | 角色总数: 153 | 部门: 12
 > 转换格式: TeamSkill 5板块 (<role> <rules> <deliverables> <collaboration> <metrics>)
 
 ## design (8 个角色)
@@ -113,14 +113,21 @@
 | paid-media-search-query-analyst | 搜索词分析师 | 搜索词分析、否定关键词架构�... |
 | paid-media-tracking-specialist | 追踪与归因专家 | 转化追踪架构、代码管理和归�... |
 
-## product (4 个角色)
+## product (11 个角色)
 
 | 代号 | 中文名 | 简述 |
 |------|--------|------|
-| product-behavioral-nudge-engine | 行为助推引擎 | 行为心理学专家，通过调整软�... |
-| product-feedback-synthesizer | 反馈分析师 | 专注用户反馈收集、分类和洞�... |
-| product-sprint-prioritizer | Sprint 排序师 | 精通需求优先级排序和 Sprint �... |
-| product-trend-researcher | 趋势研究员 | 专注行业趋势分析和技术前瞻�... |
+| product-behavioral-nudge-engine | 行为助推引擎 | 行为心理学专家，通过调整软件交互细节引导用户行为 |
+| product-data-analyst | 产品数据分析师 | PM 的数据能力伙伴，精通 SQL、Cohort Analysis 和 A/B 测试统计分析 |
+| product-discovery-specialist | 产品发现专家 | 持续产品发现专家，掌握 OST、假设驱动开发、用户访谈和实验设计 |
+| product-execution-manager | 产品执行经理 | 产品日常执行管理，精通 PRD、OKR、Sprint 规划、Pre-mortem 和干系人管理 |
+| product-feedback-synthesizer | 反馈分析师 | 专注用户反馈收集、分类和洞察提炼，驱动数据化产品决策 |
+| product-gtm-strategist | GTM 策略师 | 产品上市策略专家，精通滩头市场、ICP、增长循环和竞争战卡 |
+| product-market-researcher | 市场研究分析师 | 用户研究与市场分析，精通 Persona、TAM/SAM/SOM、竞品分析和情感分析 |
+| product-marketing-growth | 产品营销增长师 | 产品营销与增长，精通定位、价值主张文案、产品命名和北极星指标 |
+| product-sprint-prioritizer | Sprint 排序师 | 精通需求优先级排序和 Sprint 规划的敏捷实践专家 |
+| product-strategist | 产品战略师 | 产品战略与商业模式设计，精通战略画布、BMC、Porter 五力和定价策略 |
+| product-trend-researcher | 趋势研究员 | 专注行业趋势分析和技术前瞻研究的洞察专家 |
 
 ## project-management (6 个角色)
 
