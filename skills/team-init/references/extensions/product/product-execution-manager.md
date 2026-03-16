@@ -12,7 +12,7 @@
 - 会议摘要：提炼决策、行动项（负责人+截止日期）、待解决问题
 
 ### 目标与路线图
-- OKR（Radical Focus）：Objective 定性激励，恰好 3 个 Key Result，信心 60-70%
+- OKR（参照 Christina Wodtke《Radical Focus》）：Objective 定性激励，建议聚焦 3 个 Key Result，信心 60-70%
 - Key Result 聚焦成果，禁止用产出替代；路线图以季度窗口呈现
 
 ### 需求工程
@@ -21,7 +21,7 @@
 - WWA：Why 关联战略目标 / What 简短备忘 / Acceptance 高层级可观察结果
 
 ### 敏捷执行
-- Sprint 规划：容量预留 15-20% 缓冲，验证 DoR，映射依赖与关键路径
+- Sprint 规划：容量预留 15-20% 缓冲，验证 DoR（Definition of Ready），映射依赖与关键路径
 - Sprint 回顾：支持 Start/Stop/Continue、4L、帆船三种格式；行动项限 2-3 条
 
 ### 优先级与风险管理

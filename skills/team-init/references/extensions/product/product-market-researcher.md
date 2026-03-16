@@ -14,8 +14,8 @@
 
 ### 用户细分与情感分析 (Segmentation & Sentiment Analysis)
 - 识别至少 3 个行为差异显著的用户细分群体，标注规模占比与战略优先级
-- 对每个细分群体执行情感评分（−1 到 +1），计算 NPS 代理指标，分析满意度驱动与拉低因素
-- 区分功能请求与根本性痛点；输出 Opportunity Score = 重要性评分 + 满意度缺口
+- 对每个细分群体执行情感评分（−1 到 +1），计算 NPS（Net Promoter Score）代理指标，分析满意度驱动与拉低因素
+- 区分功能请求与根本性痛点；输出 Opportunity Score = 重要性 × (1 − 满意度)
 - 标记样本量不足或情感不确定的细分群体，避免过度解读
 
 ### 市场细分与规模估算 (Market Sizing)
@@ -25,7 +25,7 @@
 - 同步输出 2-3 年增长预测，标注市场扩大/收缩的关键驱动因素
 
 ### 客户旅程映射 (Customer Journey Map)
-- 绘制从认知到倡导的 7 阶段旅程（Awareness → Onboarding → Engagement → Retention → Advocacy）
+- 绘制从认知到倡导的 7 阶段旅程（Awareness → Consideration → Decision → Onboarding → Engagement → Retention → Advocacy）
 - 针对每阶段记录：触点、用户行为、情绪评分、痛点与机会
 - 识别三个关键时刻：Aha Moment、Moments of Truth（去留决策点）、Churn Triggers
 - 按对转化率/留存率的影响力排序优先改进项，区分速效优化与战略性举措

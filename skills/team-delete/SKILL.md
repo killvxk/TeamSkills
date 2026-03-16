@@ -5,7 +5,7 @@ description: |
   "delete team config", "移除团队", "remove saved team", "清理团队配置".
   从 .team-profiles/ 目录中删除已保存的 YAML 配置文件（非运行中团队，
   运行中团队请用 /team-stop）。
-version: 0.4.0
+version: 0.4.1
 ---
 
 # 团队配置删除
