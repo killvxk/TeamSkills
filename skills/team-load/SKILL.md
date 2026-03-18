@@ -6,7 +6,7 @@ description: |
   "load team config", "载入团队", "重新加载团队", "reload team".
   从 .team-profiles/ 读取 YAML 配置，
   跳过交互问答直接创建团队。支持 template 和 snapshot 两种格式。
-version: 0.4.1
+version: 0.5.0
 ---
 
 # 团队配置加载
@@ -164,7 +164,7 @@ AskUserQuestion:
 - `description`: 项目描述
 - `tech_stack`: 技术栈
 - `work_dir`: 工作目录（"." 替换为当前工作目录）
-- `roles[]`: 角色列表，每项有 `role`（代号）、`count`（数量）、`is_lead`（是否 Lead）、`source`（可选，`extension` 表示扩展角色）、`department`（可选，扩展角色所属领域）
+- `roles[]`: 角色列表，每项有 `role`（代号）、`count`（数量）、`is_lead`（是否 Lead）、`source`（可选，`extension` 表示扩展角色，`remote` 表示远程角色）、`department`（可选，扩展角色所属领域）、`remote_source`（可选，远程角色来源标识）、`verified`（可选，远程角色 5-Block 验证状态）
 
 ### T-2: 创建团队
 
@@ -182,6 +182,20 @@ TeamCreate:
 - 工作流: `../team-init/references/{team_type}/workflow.md`
 
 **扩展角色识别**: 角色配置中 `source: extension` 的角色为扩展角色。其 `role` 字段格式为 `ext-{department}-{role_code}`，需从 `department` 字段获取部门名，从 `role` 字段去掉 `ext-{department}-` 前缀获取角色代号，然后从 `../team-init/references/extensions/{department}/{role_code}.md` 读取定义。例如：engineering 领域的 AI 工程师，存储为 `role: "ext-engineering-engineering-ai-engineer"`，去掉 `ext-engineering-` 前缀得到 `engineering-ai-engineer`，路径为 `../team-init/references/extensions/engineering/engineering-ai-engineer.md`。
+
+**远程角色**（`source: remote`）：
+1. 读取 `{work_dir}/.team-roles/roles-lock.json`
+2. 在 `roles[]` 中查找 `code` 与角色代号匹配的条目
+3. 找到 → 拼接路径 `{work_dir}/.team-roles/{lock_entry.filePath}`，Read 获取内容
+4. 未找到或文件不存在 → 提示用户选择：
+   - "现在安装"（推断 GitHub URL 从 `remote_source` 字段，执行 team-roles add 流程，完成后重试步骤 2）
+   - "跳过该角色"（从成员列表中移除，继续加载）
+   - "取消加载"（中止整个 team-load）
+
+**work_dir 变更时的缓存回退**：若用户在步骤 5 修改了工作目录，新 `work_dir` 可能没有 `.team-roles/` 缓存。处理方式：
+- 先检查新 `work_dir/.team-roles/roles-lock.json`
+- 不存在 → 回退检查原始 `work_dir/.team-roles/roles-lock.json`
+- 都不存在 → 提示角色未安装，走上方缺失安装流程
 
 使用 Read 工具时，将以上相对路径拼接到本 skill 的 base directory 构建绝对路径。
 
@@ -452,6 +466,7 @@ snapshot 必须包含 `team_type` 字段。如果 `team_type` 为空，无法确
    - 无序号后缀: name 即为 role_code（如 `pm` → role `pm`）
    - 有序号后缀: 去掉末尾 `-数字序号` 获取 role_code（如 `developer-2`、`developer-10` → role `developer`），统计同一 role_code 的数量作为 count
    - 识别 Lead: 按 team_type 的 lead 映射表匹配
+   - **远程角色识别**: 检查每个成员 prompt 开头是否含有角色标注 `（远程角色 — {source}）`（该标注由 team-init 的远程角色 prompt 注入规则生成）；匹配则设置 `source: remote`，`remote_source` 从标注的 `{source}` 部分提取
 
 2. **构造虚拟 template**: 用提取的信息构造等效于 template 格式的配置：
    ```yaml
@@ -469,6 +484,11 @@ snapshot 必须包含 `team_type` 字段。如果 `team_type` 为空，无法确
        count: 1
        source: extension
        department: "{department}"
+     # 远程角色（从 prompt 开头的「远程角色 — {source}」标注推断）
+     - role: "{extracted_code}"
+       count: 1
+       source: remote
+       remote_source: "{extracted_source}"
    ```
 
 3. **走模板加载流程**: 使用虚拟 template 执行 T-1 到 T-7，从 ../team-init/references/ 读取原始角色定义，构建全新的 prompt，创建全新的任务骨架。

@@ -103,3 +103,9 @@
 | spatial-computing | 6 | visionOS、WebXR、Metal |
 | specialized | 21 | 编排、区块链安全、MCP、合规 |
 | testing | 8 | 证据收集、无障碍、API测试 |
+
+## 远程角色
+
+除上述内置角色外，用户可通过 `/team-roles add` 从 GitHub 仓库、单文件 URL 或 npx 包安装额外角色。已安装的远程角色在创建团队时（问题 4.5）可选加入。
+
+详见 `/team-roles` Skill。

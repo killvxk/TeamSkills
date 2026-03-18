@@ -5,7 +5,7 @@ description: |
   "team init", "create team", "build team", "组建团队", "启动项目团队",
   "添加扩展角色", "add extension roles". 通过交互式问答收集项目信息，
   创建包含专业角色的 Agent 工程团队。支持 8 种团队类型和 153 个扩展专业角色（跨 12 领域）。
-version: 0.4.1
+version: 0.5.0
 ---
 
 # 工程团队初始化
@@ -181,7 +181,7 @@ AskUserQuestion:
   multiSelect: false
 ```
 
-若选择「跳过」→ 若 team_type 为 discuss 则进入问题 4.5（讨论轮次）；否则进入问题 5（确认）。
+若选择「跳过」→ 若 team_type 为 discuss 则进入问题 4.6（讨论轮次）；否则进入问题 5（确认）。
 若选择「浏览并选择」→ 进入问题 4.3。
 
 ### 问题 4.3: 选择扩展领域
@@ -235,9 +235,45 @@ AskUserQuestion:
 
 对每个选中领域重复此问题。记录所有选中的扩展角色 `ext_roles[]`，每项包含 `department` 和 `role_code`。
 
-完成所有领域的角色选择后：若 team_type 为 discuss → 进入问题 4.5（讨论轮次）；否则 → 进入问题 5（工作目录）。
+完成所有领域的角色选择后：若 team_type 为 discuss → 进入问题 4.6（讨论轮次）；否则 → 进入问题 4.5（远程角色）。
 
-### 问题 4.5: 讨论轮次（仅 discuss 类型触发）
+### 问题 4.5 — 远程角色追加（可选）
+
+**前置条件**：检测 `{work_dir}/.team-roles/roles-lock.json` 是否存在且 `roles` 数组非空。若不存在或为空 → 跳过此步骤，直接进入问题 4.6（discuss 类型）或问题 5（工作目录）。
+
+若存在，使用 `AskUserQuestion` 提问：
+
+```
+AskUserQuestion:
+  question: "是否从已安装的远程角色中添加团队成员？"
+  header: "远程角色"
+  options:
+    - label: "跳过"
+      description: "不添加远程角色"
+    - label: "浏览已安装的远程角色"
+      description: "从已安装的远程角色中选择要加入团队的成员"
+    - label: "现在安装新的远程角色"
+      description: "输入 GitHub repo URL 或 npx 包名，安装后选择"
+  multiSelect: false
+```
+
+**选项处理**：
+
+- **跳过** → 若 team_type 为 discuss 则进入问题 4.6（讨论轮次）；否则进入问题 5（工作目录）。
+- **浏览已安装** → 读取 `{work_dir}/.team-roles/roles-lock.json`，以表格展示所有角色（代号、来源、verified/unverified 状态、简述），使用 `AskUserQuestion` 让用户多选要加入的角色。选定后追加到 `selected_extension_roles` 列表，标记 `source: remote`。
+- **现在安装新的** → 提示用户输入 repo URL 或 npx 包名，按 `/team-roles add` 的完整流程执行（参考 `../team-roles/SKILL.md` 的 add 指令）。安装完成后回到本问题重新列出可选角色。
+
+**远程角色选择展示格式**：
+
+```
+| 代号              | 来源              | 状态         | 简述           |
+|-------------------|-------------------|-------------|----------------|
+| ai-engineer       | user/my-roles     | ✓ verified  | AI 工程师...    |
+| vite-skill        | antfu/skills@vite | ⚠ unverified | Vite 开发...   |
+| custom-reviewer   | (单文件)           | ✓ verified  | 代码审查...     |
+```
+
+### 问题 4.6: 讨论轮次（仅 discuss 类型触发）
 
 ```
 AskUserQuestion:
@@ -287,9 +323,20 @@ AskUserQuestion:
 扩展角色:
   - {ext_role_name} ({department})
   ...
+{若有远程角色}
+远程角色:
+  - {role_code} ({source}) [verified/unverified]
+  ...
 
 预计创建 {N} 个 Agent
 --------------------
+```
+
+若本次团队包含 unverified 远程角色，在确认步骤汇总信息后额外输出警告：
+
+```
+⚠ 本次团队包含 {N} 个未验证远程角色：{role1}, {role2}
+   未验证角色的内容未经 5-Block 格式校验，请确认已审阅其内容。
 ```
 
 ```
@@ -341,8 +388,12 @@ AskUserQuestion:
    - 扩展角色来源路径: `references/extensions/{department}/{role_code}.md`
    - 使用 Read 读取每个扩展角色定义
    - 使用 Write 写入 `.teams/{project_name}/roles/ext-{department}-{role_code}.md`（加 `ext-` 前缀）
-5. 使用 Write 将 workflow.md 写入 `.teams/{project_name}/workflow.md`
-6. 使用 Write 创建 `.teams/{project_name}/team.yaml`:
+5. 若有远程角色（`selected_extension_roles` 中含 `source: remote` 条目）:
+   - 读取 `{work_dir}/.team-roles/roles-lock.json`，查找每个远程角色的 `filePath`
+   - 使用 Read 读取 `{work_dir}/.team-roles/{filePath}` 获取角色内容
+   - 使用 Write 写入 `.teams/{project_name}/roles/{role_code}.md`（直接用角色代号，不加前缀）
+6. 使用 Write 将 workflow.md 写入 `.teams/{project_name}/workflow.md`
+7. 使用 Write 创建 `.teams/{project_name}/team.yaml`:
 
 ```yaml
 # 团队配置 - 由 /team-init 准备
@@ -369,6 +420,13 @@ roles:
   #   count: 1
   #   source: extension
   #   department: "{department}"
+
+  # 远程角色（如有）
+  # - role: "{role_code}"
+  #   count: 1
+  #   source: remote
+  #   remote_source: "{source_from_lock}"
+  #   verified: true/false
 ```
 
 ### 步骤 2: 用户审阅角色定义
@@ -528,6 +586,66 @@ Lead 角色负责管理整个工作流，因此注入**完整的 workflow.md 内
 </your_role>
 ```
 
+#### 远程角色的 Prompt
+
+远程角色（`source: remote`）根据 `verified` 状态使用不同 prompt：
+
+**远程 verified 角色**：与内置扩展角色同等处理，标注远程来源：
+
+```
+你是「{project_name}」项目的{role_name}（远程角色 — {source}）。
+
+<project_context>
+项目名称: {project_name}
+团队类型: {team_type_name}
+项目描述: {description}
+技术栈: {tech_stack}
+工作目录: {work_dir}
+{若 discuss 类型} 最大讨论轮次: {max_rounds}
+</project_context>
+
+<team_members>
+{列出所有成员的名称和角色}
+</team_members>
+
+<workflow_overview>
+{仅 workflow.md 中「阶段总览」表格，不含各 Phase 详细流程}
+</workflow_overview>
+
+<your_role>
+{角色 .md 文件的完整内容}
+</your_role>
+```
+
+**远程 unverified 角色**：在 `<your_role>` 内容前追加格式提示：
+
+```
+你是「{project_name}」项目的{role_name}（远程角色 — {source}）。
+
+<project_context>
+项目名称: {project_name}
+团队类型: {team_type_name}
+项目描述: {description}
+技术栈: {tech_stack}
+工作目录: {work_dir}
+{若 discuss 类型} 最大讨论轮次: {max_rounds}
+</project_context>
+
+<team_members>
+{列出所有成员的名称和角色}
+</team_members>
+
+<workflow_overview>
+{仅 workflow.md 中「阶段总览」表格，不含各 Phase 详细流程}
+</workflow_overview>
+
+<your_role>
+注意：此角色定义未遵循标准 5-Block 格式，请尽量按照 <role>/<rules>/<deliverables>/<collaboration>/<metrics> 结构理解和执行其中的指示。
+
+{角色 .md 文件的完整内容}
+</your_role>
+```
+
 ### 步骤 6: 创建初始任务
 
 使用 TaskCreate 根据 workflow.md 的阶段创建任务骨架。
@@ -587,6 +705,13 @@ roles:
   #   count: 1
   #   source: extension
   #   department: "{department}"
+
+  # 远程角色（如有）
+  # - role: "{role_code}"
+  #   count: 1
+  #   source: remote
+  #   remote_source: "{source}"
+  #   verified: true/false
 ```
 
 保存后输出提示：

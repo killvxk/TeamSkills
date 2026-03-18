@@ -4,15 +4,15 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat" alt="License"></a>
-  <img src="https://img.shields.io/badge/version-0.4.1-brightgreen?style=flat" alt="Version">
-  <img src="https://img.shields.io/badge/skills-7-orange?style=flat" alt="Skills">
+  <img src="https://img.shields.io/badge/version-0.5.0-brightgreen?style=flat" alt="Version">
+  <img src="https://img.shields.io/badge/skills-8-orange?style=flat" alt="Skills">
   <img src="https://img.shields.io/badge/core_roles-51-blue?style=flat" alt="Core Roles">
   <img src="https://img.shields.io/badge/extension_roles-153-purple?style=flat" alt="Extension Roles">
 </p>
 
 ---
 
-基于 Claude Code Agent Team 能力的工程团队管理插件。通过 7 个 slash command 实现团队的全生命周期管理：创建、保存、加载、查看、监控和终止。内置 51 个核心角色 + 153 个扩展专业角色，覆盖 8 种团队类型和 12 个扩展领域。
+基于 Claude Code Agent Team 能力的工程团队管理插件。通过 8 个 slash command 实现团队的全生命周期管理：创建、保存、加载、查看、监控和终止。内置 51 个核心角色 + 153 个扩展专业角色，覆盖 8 种团队类型和 12 个扩展领域，并支持从外部源安装远程角色。
 
 ## Quick Start
 
@@ -44,6 +44,7 @@ git clone https://github.com/killvxk/TeamSkills.git
 | `/team-delete` | 删除已保存的配置 | `/team-delete my-project` |
 | `/team-status` | 查看运行中的团队状态 | `/team-status my-project` |
 | `/team-stop` | 终止运行中的团队 | `/team-stop my-project` |
+| `/team-roles` | 远程角色管理（安装/更新/移除远程角色） | `/team-roles add https://github.com/user/roles` |
 
 ## 支持的团队类型
 
@@ -82,6 +83,18 @@ git clone https://github.com/killvxk/TeamSkills.git
 扩展角色使用 `ext-{department}-{role_code}` 命名规则，在 prompt 中标注为「扩展角色 — {department}」。
 
 > 扩展角色库基于 [agency-agents-zh](https://github.com/jnMetaCode/agency-agents-zh) 和 [pm-skills](https://github.com/phuryn/pm-skills) 转换而来，已适配 TeamSkill 5 板块结构。
+
+### 远程角色支持
+
+从外部源安装角色到项目级缓存 `.team-roles/`：
+
+| 源类型 | 命令 |
+|--------|------|
+| GitHub 仓库 | `team-roles add https://github.com/user/roles` |
+| 单文件 URL | `team-roles add https://raw.githubusercontent.com/.../role.md` |
+| npx 包 | `team-roles add npx:package-name` |
+
+安装的角色自动出现在 `/team-init` 的扩展角色选择中。支持 5-Block 格式验证（verified/unverified 分级）和 `roles-lock.json` 版本锁定。
 
 ## 核心特性
 

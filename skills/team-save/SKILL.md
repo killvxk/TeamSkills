@@ -5,7 +5,7 @@ description: |
   "保存团队配置", "导出团队", "save team", "export team",
   "save team config". 从运行中的团队读取配置并保存为快照文件
   到 .team-profiles/ 目录，供 /team-load 复用。
-version: 0.4.1
+version: 0.5.0
 ---
 
 # 团队配置保存
@@ -164,6 +164,8 @@ mkdir -p "{当前工作目录}/.team-profiles"
    ```
 3. 写入前将旧文件重命名为 `.team-profiles/{save_name}.yaml.bak`（使用 Bash: `mv` 命令）
 4. 如果 `.bak` 文件也已存在，直接覆盖 `.bak`
+
+> **远程角色元数据**：若团队包含远程角色（`source: remote`），template 格式（由 `/team-init` 步骤 8 自动保存）的 roles 条目需保留 `source: remote`、`remote_source` 和 `verified` 字段，供 `/team-load` 重新解析路径时使用。Snapshot 格式无需额外处理，prompt 已包含完整角色内容。
 
 使用 Write 工具创建 `.team-profiles/{save_name}.yaml`：
 
