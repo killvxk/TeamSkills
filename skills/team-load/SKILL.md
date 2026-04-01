@@ -6,7 +6,7 @@ description: |
   "load team config", "载入团队", "重新加载团队", "reload team".
   从 .team-profiles/ 读取 YAML 配置，
   跳过交互问答直接创建团队。支持 template 和 snapshot 两种格式。
-version: 0.5.0
+version: 0.5.1
 ---
 
 # 团队配置加载
@@ -166,7 +166,9 @@ AskUserQuestion:
 - `work_dir`: 工作目录（"." 替换为当前工作目录）
 - `roles[]`: 角色列表，每项有 `role`（代号）、`count`（数量）、`is_lead`（是否 Lead）、`source`（可选，`extension` 表示扩展角色，`remote` 表示远程角色）、`department`（可选，扩展角色所属领域）、`remote_source`（可选，远程角色来源标识）、`verified`（可选，远程角色 5-Block 验证状态）
 
-### T-2: 创建团队
+### T-2: 创建团队（TeamCreate 工具）
+
+> **⚠ 关键步骤 — 不可跳过。** 必须使用 `TeamCreate` 工具注册团队。此步骤创建团队配置和共享 TaskList，是 T-6 中 `Agent(team_name=...)` 生效的前提。若跳过此步骤直接调用 Agent，成员将成为独立 subagent 而非团队成员。
 
 ```
 TeamCreate:
@@ -291,15 +293,17 @@ TeamCreate:
 设置阶段间的 blockedBy 依赖关系。
 将第一个任务分配给 Lead 角色。
 
-### T-6: 派生团队成员
+### T-6: 派生团队成员（Agent 工具 + team_name）
 
 先创建 Lead，再并行创建其他角色。
+
+> **`team_name` 参数是团队成员与普通 subagent 的唯一区别。** 必须填写 T-2 中 TeamCreate 注册的团队名称。
 
 ```
 Agent:
   name: "{member_name}"
   subagent_type: "general-purpose"
-  team_name: "{project_name}"
+  team_name: "{project_name}"       # ← 必须与 T-2 TeamCreate 的 team_name 一致
   prompt: "{T-4 构建的 prompt}"
   mode: "bypassPermissions"
   description: "Team member: {role_name}"
@@ -359,7 +363,9 @@ SendMessage:
   - `owner`: 负责人名称
   - `blocked_by`: 依赖的 original_id 列表
 
-### S-2: 创建团队
+### S-2: 创建团队（TeamCreate 工具）
+
+> **⚠ 关键步骤 — 不可跳过。** 必须使用 `TeamCreate` 工具注册团队。此步骤创建团队配置和共享 TaskList，是 S-4 中 `Agent(team_name=...)` 生效的前提。若跳过此步骤直接调用 Agent，成员将成为独立 subagent 而非团队成员。
 
 ```
 TeamCreate:
@@ -401,13 +407,13 @@ TeamCreate:
 在 members 列表中查找 name 匹配 lead 代号的成员，优先创建它。
 如果 `team_type` 为空或找不到匹配的 lead 成员，则全部并行创建。
 
-对每个成员：
+对每个成员，使用 Agent 工具创建（**`team_name` 必须与 S-2 TeamCreate 注册的名称一致**）：
 
 ```
 Agent:
   name: "{member.name}"
   subagent_type: "general-purpose"
-  team_name: "{project_name}"
+  team_name: "{project_name}"       # ← 必须与 S-2 TeamCreate 的 team_name 一致
   prompt: "{member.prompt}"
   mode: "{member.mode 或默认 bypassPermissions}"
   description: "Team member: {member.name}"

@@ -5,7 +5,7 @@ description: |
   "team init", "create team", "build team", "组建团队", "启动项目团队",
   "添加扩展角色", "add extension roles". 通过交互式问答收集项目信息，
   创建包含专业角色的 Agent 工程团队。支持 8 种团队类型和 153 个扩展专业角色（跨 12 领域）。
-version: 0.5.0
+version: 0.5.1
 ---
 
 # 工程团队初始化
@@ -475,7 +475,9 @@ AskUserQuestion:
 （检测到 .teams/ 目录时将直接使用其中的角色定义）。
 ```
 
-### 步骤 3: 创建团队
+### 步骤 3: 创建团队（TeamCreate 工具）
+
+> **⚠ 关键步骤 — 不可跳过。** 必须使用 `TeamCreate` 工具注册团队。此步骤创建团队配置和共享 TaskList，是步骤 7 中 `Agent(team_name=...)` 生效的前提。若跳过此步骤直接调用 Agent，成员将成为独立 subagent 而非团队成员 — 无法共享 TaskList、无法通过 SendMessage 互相通信。
 
 ```
 TeamCreate:
@@ -652,15 +654,17 @@ Lead 角色负责管理整个工作流，因此注入**完整的 workflow.md 内
 设置阶段间的 blockedBy 依赖关系。
 将第一个任务分配给 Lead 角色。
 
-### 步骤 7: 派生团队成员
+### 步骤 7: 派生团队成员（Agent 工具 + team_name）
 
 **Lead 角色必须第一个创建。** 注意：多实例角色（如 developer x2）的每个实例使用相同的角色定义文件。
+
+> **`team_name` 参数是团队成员与普通 subagent 的唯一区别。** 必须填写步骤 3 中 TeamCreate 注册的团队名称。缺少 `team_name` 的 Agent 调用将创建独立 subagent，无法加入团队协作。
 
 ```
 Agent:
   name: "{member_name}"
   subagent_type: "general-purpose"
-  team_name: "{project_name}"
+  team_name: "{project_name}"       # ← 必须与步骤 3 TeamCreate 的 team_name 一致
   prompt: "{步骤 5 构建的 prompt}"
   mode: "bypassPermissions"
   description: "Team member: {role_name}"
